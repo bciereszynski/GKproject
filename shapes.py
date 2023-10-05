@@ -13,7 +13,7 @@ class Point:
         tempPen = painter.pen()
         painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
         painter.setPen(QtCore.Qt.darkRed)
-        rect = QtCore.QRect(QtCore.QPoint(self.x-3,self.y-3), QtCore.QSize(6,6))
+        rect = QtCore.QRect(QtCore.QPoint(self.x-3, self.y-3), QtCore.QSize(6, 6))
         painter.drawRect(rect)
         painter.setBrush(tempBrush)
         painter.setPen(tempPen)
@@ -79,6 +79,7 @@ class Line:
             return True
         return False
 
+
 class Circle:
     def __init__(self, point1, point2):
         self.r = None
@@ -90,7 +91,7 @@ class Circle:
         self.point1.render(painter)
         self.point2.render(painter)
         self.r = math.sqrt(math.pow(self.point1.x - self.point2.x, 2) + math.pow(self.point1.y - self.point2.y, 2))
-        painter.drawEllipse( QPoint(self.point1.x, self.point1.y), int(self.r), int(self.r))
+        painter.drawEllipse(QPoint(self.point1.x, self.point1.y), int(self.r), int(self.r))
 
     def resize(self, delta):
         if self._resizePoint is not None:
@@ -119,6 +120,7 @@ class Circle:
             return True
         return False
 
+
 class Rectangle:
     def __init__(self, point1, point2):
         self.point1 = point1
@@ -131,7 +133,7 @@ class Rectangle:
         painter.drawRect(self.point1.x, self.point1.y, self.point2.x-self.point1.x, self.point2.y-self.point1.y)
 
     def resize(self, delta):
-        if self._resizePoint != None:
+        if self._resizePoint is not None:
             self._resizePoint.resize(delta)
 
     def move(self, delta):

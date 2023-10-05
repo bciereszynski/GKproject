@@ -1,7 +1,9 @@
 from DrawBox import DrawBox
-from Menu import Menu
+from Menu import ShapesMenu
 from PyQt5.QtWidgets import QLabel
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -9,10 +11,11 @@ class MainWindow(QtWidgets.QWidget):
         self.setGeometry(QtCore.QRect(200, 100, 1200, 600))
         self.setWindowTitle("GK")
         self.sizeLabel = QLabel()
-        self.sizeLabel.setFixedSize(150,50)
+        self.sizeLabel.setFixedSize(150, 50)
+
         self.paint = DrawBox()
-        self.menu = Menu(self.paint)
-        self.sizeHint()
+        self.menu = ShapesMenu(self.paint)
+
         self.lay = QtWidgets.QHBoxLayout()
         self.lay.addWidget(self.paint, stretch=2)
         self.lay.addWidget(self.menu, stretch=0)

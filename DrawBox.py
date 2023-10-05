@@ -1,5 +1,5 @@
-
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class DrawBox(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -13,8 +13,10 @@ class DrawBox(QtWidgets.QWidget):
         self._objectToMove = None
         self._objectToResize = None
         self._initial_pos = None
+
     def showEvent(self, event):
         super(DrawBox, self).showEvent(event)
+
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -48,7 +50,7 @@ class DrawBox(QtWidgets.QWidget):
             self.update()
             self._initial_pos = event.pos()
             return
-        #else
+        # else
         for sh in reversed(self.shapes):
             if sh.checkMove(event.pos()):
                 self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
@@ -63,4 +65,3 @@ class DrawBox(QtWidgets.QWidget):
         self._objectToResize = None
         self._objectToMove = None
         super(DrawBox, self).mouseReleaseEvent(event)
-

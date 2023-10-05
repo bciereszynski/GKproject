@@ -1,13 +1,14 @@
 from PyQt5 import QtGui, QtWidgets
-from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton
+from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
 from shapes import Point, Rectangle, Line, Circle
 from PyQt5.QtCore import Qt
 
 
-class Menu(QtWidgets.QWidget):
-    def __init__(self, paint, parent = None):
-        super(Menu, self).__init__(parent)
+class ShapesMenu(QtWidgets.QWidget):
+    # noinspection PyUnresolvedReferences
+    def __init__(self, paint, parent=None):
+        super(ShapesMenu, self).__init__(parent)
         self.setBackgroundRole(QtGui.QPalette.Window)
         self.setAutoFillBackground(True)
         self.resize = False
@@ -64,4 +65,3 @@ class Menu(QtWidgets.QWidget):
         elif self.shapeTypeCombo.currentText() == "Circle":
             self.paint.shapes.append(Circle(point1, point2))
         self.paint.update()
-
