@@ -11,15 +11,12 @@ class Paint(QtWidgets.QWidget):
         super(Paint, self).__init__(parent)
         self.setBackgroundRole(QtGui.QPalette.Base)
         self.setAutoFillBackground(True)
+        self.setMouseTracking(True)
 
-        self.resize = False
-
-        self._width = 350
-        self._height = 250
-        self._rect = QtCore.QRect(QtCore.QPoint(self.rect().center()), QtCore.QSize(self._width, self._height))
-        self._initial_pos = QtCore.QPoint(self.rect().center())
         self.shapes = []
 
+        self._objectToResize = None
+        self._initial_pos = None
 
     def showEvent(self, event):
         super(Paint, self).showEvent(event)
@@ -31,27 +28,34 @@ class Paint(QtWidgets.QWidget):
         painter.setPen(QtCore.Qt.darkCyan)
         for sh in self.shapes:
             sh.render(painter)
-        painter.drawRect(self._rect)
 
     def mousePressEvent(self, event):
-        if self._rect.contains(event.pos()):
-            QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
-            self.resize = True
-            self._initial_pos = event.pos()
+        for sh in self.shapes:
+            if sh.checkResize(event.pos()):
+                self._objectToResize = sh
+                self._initial_pos = event.pos()
+
         super(Paint, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
-        if self.resize == True:
+        if self._objectToResize is not None:
             delta = event.pos() - self._initial_pos
-            self._rect.setWidth(self._rect.width()+delta.x())
-            self._rect.setHeight(self._rect.height()+delta.y())
+            self._objectToResize.resize(delta)
             self.update()
             self._initial_pos = event.pos()
+        else:
+            for sh in self.shapes:
+                if sh.checkMove(event.pos()):
+                    self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
+                    return
+                if sh.checkResize(event.pos()):
+                    self.setCursor(QtGui.QCursor(QtCore.Qt.SizeAllCursor))
+                    return
+                self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         super(Paint, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
-        QtWidgets.QApplication.restoreOverrideCursor()
-        self.resize = False
+        self._objectToResize = None
         super(Paint, self).mouseReleaseEvent(event)
 
 class Menu(QtWidgets.QWidget):
