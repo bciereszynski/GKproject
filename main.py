@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
-from shapes import Point
+from shapes import Point, Rectangle
 
 
 class Paint(QtWidgets.QWidget):
@@ -68,26 +68,34 @@ class Menu(QtWidgets.QWidget):
         self.combobox.addItem("Prostokąt")
         self.combobox.addItem("Okrąg")
 
-        self.spinPoint1 = QSpinBox()
-        self.spinPoint1.setMaximum(2000)
-        self.spinPoint2 = QSpinBox()
-        self.spinPoint2.setMaximum(1000)
+        self.spinPoint1Width = QSpinBox()
+        self.spinPoint1Width.setMaximum(2000)
+        self.spinPoint1Height = QSpinBox()
+        self.spinPoint1Height.setMaximum(1000)
+
+        self.spinPoint2Width = QSpinBox()
+        self.spinPoint2Width.setMaximum(2000)
+        self.spinPoint2Height = QSpinBox()
+        self.spinPoint2Height.setMaximum(1000)
 
         self.createButton = QPushButton("Stwórz")
         self.createButton.clicked.connect(self.createShape)
 
         self.lay = QtWidgets.QVBoxLayout()
         self.lay.addWidget(self.combobox)
-        self.lay.addWidget(self.spinPoint1)
-        self.lay.addWidget(self.spinPoint2)
+        self.lay.addWidget(self.spinPoint1Width)
+        self.lay.addWidget(self.spinPoint1Height)
+        self.lay.addWidget(self.spinPoint2Width)
+        self.lay.addWidget(self.spinPoint2Height)
         self.lay.addWidget(self.createButton)
         self.setLayout(self.lay)
 
 
     def createShape(self):
-        self.paint.shapes.append(Point(self.spinPoint1.value(), self.spinPoint2.value()))
+        point1 = Point(self.spinPoint1Width.value(), self.spinPoint1Height.value())
+        point2 = Point(self.spinPoint2Width.value(), self.spinPoint2Height.value())
+        self.paint.shapes.append(Rectangle(point1, point2))
         self.paint.update()
-        print(f"created {self.combobox.currentText()} {self.spinPoint1.value()} {self.spinPoint2.value()}")
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
