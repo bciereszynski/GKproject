@@ -7,5 +7,5 @@ class Point:
         self.y = y
 
     def render(self, painter):
-        rect = QtCore.QRect(QtCore.QPoint(self.x,self.y), QtCore.QSize(5,5))
+        rect = QtCore.QRect(QtCore.QPoint(self.x-2,self.y-2), QtCore.QSize(6,6))
         painter.drawRect(rect)
