@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
-from shapes import Point, Rectangle
+from shapes import Point, Rectangle, Line
 
 
 class Paint(QtWidgets.QWidget):
@@ -15,6 +15,7 @@ class Paint(QtWidgets.QWidget):
 
         self.shapes = []
 
+        self._objectToMove = None
         self._objectToResize = None
         self._initial_pos = None
 
@@ -34,6 +35,9 @@ class Paint(QtWidgets.QWidget):
             if sh.checkResize(event.pos()):
                 self._objectToResize = sh
                 self._initial_pos = event.pos()
+            elif sh.checkMove(event.pos()):
+                self._objectToMove = sh
+                self._initial_pos = event.pos()
 
         super(Paint, self).mousePressEvent(event)
 
@@ -43,19 +47,27 @@ class Paint(QtWidgets.QWidget):
             self._objectToResize.resize(delta)
             self.update()
             self._initial_pos = event.pos()
-        else:
-            for sh in self.shapes:
-                if sh.checkMove(event.pos()):
-                    self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
-                    return
-                if sh.checkResize(event.pos()):
-                    self.setCursor(QtGui.QCursor(QtCore.Qt.SizeAllCursor))
-                    return
-                self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+            return
+        if self._objectToMove is not None:
+            delta = event.pos() - self._initial_pos
+            self._objectToMove.move(delta)
+            self.update()
+            self._initial_pos = event.pos()
+            return
+        #else
+        for sh in self.shapes:
+            if sh.checkMove(event.pos()):
+                self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
+                return
+            if sh.checkResize(event.pos()):
+                self.setCursor(QtGui.QCursor(QtCore.Qt.SizeAllCursor))
+                return
+            self.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         super(Paint, self).mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         self._objectToResize = None
+        self._objectToMove = None
         super(Paint, self).mouseReleaseEvent(event)
 
 class Menu(QtWidgets.QWidget):
@@ -68,9 +80,9 @@ class Menu(QtWidgets.QWidget):
         self.paint = paint
 
         self.combobox = QComboBox()
-        self.combobox.addItem("Linia")
-        self.combobox.addItem("Prostokąt")
-        self.combobox.addItem("Okrąg")
+        self.combobox.addItem("Line")
+        self.combobox.addItem("Rectangle")
+        self.combobox.addItem("Circle")
 
         self.spinPoint1Width = QSpinBox()
         self.spinPoint1Width.setMaximum(2000)
@@ -82,7 +94,7 @@ class Menu(QtWidgets.QWidget):
         self.spinPoint2Height = QSpinBox()
         self.spinPoint2Height.setMaximum(1000)
 
-        self.createButton = QPushButton("Stwórz")
+        self.createButton = QPushButton("Create")
         self.createButton.clicked.connect(self.createShape)
 
         self.lay = QtWidgets.QVBoxLayout()
@@ -98,7 +110,10 @@ class Menu(QtWidgets.QWidget):
     def createShape(self):
         point1 = Point(self.spinPoint1Width.value(), self.spinPoint1Height.value())
         point2 = Point(self.spinPoint2Width.value(), self.spinPoint2Height.value())
-        self.paint.shapes.append(Rectangle(point1, point2))
+        if self.combobox.currentText()=="Line":
+            self.paint.shapes.append(Line(point1, point2))
+        elif self.combobox.currentText()=="Rectangle":
+            self.paint.shapes.append(Rectangle(point1, point2))
         self.paint.update()
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
