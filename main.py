@@ -1,11 +1,13 @@
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QSizePolicy, QComboBox, QSpinBox, QPushButton
+from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton
+
+from shapes import Point
 
 
 class Paint(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, shapes, parent=None):
         super(Paint, self).__init__(parent)
         self.setBackgroundRole(QtGui.QPalette.Base)
         self.setAutoFillBackground(True)
@@ -16,6 +18,8 @@ class Paint(QtWidgets.QWidget):
         self._height = 250
         self._rect = QtCore.QRect(QtCore.QPoint(self.rect().center()), QtCore.QSize(self._width, self._height))
         self._initial_pos = QtCore.QPoint(self.rect().center())
+        self.shapes = shapes
+
 
     def showEvent(self, event):
         super(Paint, self).showEvent(event)
@@ -25,6 +29,8 @@ class Paint(QtWidgets.QWidget):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setBrush(QtGui.QBrush( QtCore.Qt.cyan))
         painter.setPen(QtCore.Qt.darkCyan)
+        for sh in self.shapes:
+            sh.render(painter)
         painter.drawRect(self._rect)
 
     def mousePressEvent(self, event):
@@ -49,7 +55,7 @@ class Paint(QtWidgets.QWidget):
         super(Paint, self).mouseReleaseEvent(event)
 
 class Menu(QtWidgets.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, shapes, parent=None):
         super(Menu, self).__init__(parent)
         self.setBackgroundRole(QtGui.QPalette.Window)
         self.setAutoFillBackground(True)
@@ -73,15 +79,19 @@ class Menu(QtWidgets.QWidget):
         self.lay.addWidget(self.spinPoint2)
         self.lay.addWidget(self.createButton)
         self.setLayout(self.lay)
+        self.shapes = shapes
 
     def createShape(self):
+        self.shapes.append(Point(self.spinPoint1.value(), self.spinPoint2.value()))
+        self.parent().paint.update()
         print(f"created {self.combobox.currentText()} {self.spinPoint1.value()} {self.spinPoint2.value()}")
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setGeometry(QtCore.QRect(200, 100, 1200, 600))
-        self.paint = Paint()
-        self.menu = Menu()
+        shapes = []
+        self.paint = Paint(shapes)
+        self.menu = Menu(shapes, self)
         self.sizeHint()
         self.lay = QtWidgets.QHBoxLayout()
         self.lay.addWidget(self.paint, stretch=2)
