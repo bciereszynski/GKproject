@@ -1,4 +1,4 @@
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QPoint
 import math
 
@@ -9,8 +9,14 @@ class Point:
         self.y = y
 
     def render(self, painter):
+        tempBrush = painter.brush()
+        tempPen = painter.pen()
+        painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
+        painter.setPen(QtCore.Qt.darkRed)
         rect = QtCore.QRect(QtCore.QPoint(self.x-3,self.y-3), QtCore.QSize(6,6))
         painter.drawRect(rect)
+        painter.setBrush(tempBrush)
+        painter.setPen(tempPen)
 
     def move(self, delta):
         self.x += delta.x()
@@ -63,6 +69,46 @@ class Line:
         if self.point1.contains(position):
             self._resizePoint = self.point1
             return True
+        if self.point2.contains(position):
+            self._resizePoint = self.point2
+            return True
+        return False
+
+    def checkMove(self, position):
+        if self.contains(position) and not self.point2.contains(position):
+            return True
+        return False
+
+class Circle:
+    def __init__(self, point1, point2):
+        self.r = None
+        self.point1 = point1
+        self.point2 = point2
+        self._resizePoint = None
+
+    def render(self, painter):
+        self.point1.render(painter)
+        self.point2.render(painter)
+        self.r = math.sqrt(math.pow(self.point1.x - self.point2.x, 2) + math.pow(self.point1.y - self.point2.y, 2))
+        painter.drawEllipse( QPoint(self.point1.x, self.point1.y), int(self.r), int(self.r))
+
+    def resize(self, delta):
+        if self._resizePoint is not None:
+            self._resizePoint.resize(delta)
+
+    def move(self, delta):
+        self.point1.move(delta)
+        self.point2.move(delta)
+
+    def contains(self, position):
+        if self.r is None:
+            self.r = math.sqrt(math.pow(self.point1.x - self.point2.x, 2) + math.pow(self.point1.y - self.point2.y, 2))
+        distance = math.sqrt(math.pow(self.point1.x - position.x(), 2) + math.pow(self.point1.y - position.y(), 2))
+        if distance < self.r:
+            return True
+        return False
+
+    def checkResize(self, position):
         if self.point2.contains(position):
             self._resizePoint = self.point2
             return True

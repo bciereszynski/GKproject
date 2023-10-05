@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
-from shapes import Point, Rectangle, Line
+from shapes import Point, Rectangle, Line, Circle
 
 
 class Paint(QtWidgets.QWidget):
@@ -31,13 +31,15 @@ class Paint(QtWidgets.QWidget):
             sh.render(painter)
 
     def mousePressEvent(self, event):
-        for sh in self.shapes:
+        for sh in reversed(self.shapes):
             if sh.checkResize(event.pos()):
                 self._objectToResize = sh
                 self._initial_pos = event.pos()
-            elif sh.checkMove(event.pos()):
+                return
+            if sh.checkMove(event.pos()):
                 self._objectToMove = sh
                 self._initial_pos = event.pos()
+                return
 
         super(Paint, self).mousePressEvent(event)
 
@@ -55,7 +57,7 @@ class Paint(QtWidgets.QWidget):
             self._initial_pos = event.pos()
             return
         #else
-        for sh in self.shapes:
+        for sh in reversed(self.shapes):
             if sh.checkMove(event.pos()):
                 self.setCursor(QtGui.QCursor(QtCore.Qt.OpenHandCursor))
                 return
@@ -114,6 +116,8 @@ class Menu(QtWidgets.QWidget):
             self.paint.shapes.append(Line(point1, point2))
         elif self.combobox.currentText()=="Rectangle":
             self.paint.shapes.append(Rectangle(point1, point2))
+        elif self.combobox.currentText() == "Circle":
+            self.paint.shapes.append(Circle(point1, point2))
         self.paint.update()
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
