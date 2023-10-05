@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import pickle
 
 class DrawBox(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -13,6 +13,17 @@ class DrawBox(QtWidgets.QWidget):
         self._objectToMove = None
         self._objectToResize = None
         self._initial_pos = None
+
+    def saveData(self, fileName="data.txt"):
+        with open(fileName, "wb") as outfile:
+            # "wb" argument opens the file in binary mode
+            pickle.dump(self.shapes, outfile)
+
+    def loadData(self, fileName="data.txt"):
+        with open(fileName, "rb") as infile:
+            # "wb" argument opens the file in binary mode
+            self.shapes = pickle.load(infile)
+        self.update()
 
     def showEvent(self, event):
         super(DrawBox, self).showEvent(event)
