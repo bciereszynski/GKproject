@@ -18,7 +18,6 @@ class DrawBox(QtWidgets.QWidget):
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
-        painter.setBrush(QtGui.QBrush( QtCore.Qt.cyan))
         painter.setPen(QtCore.Qt.darkCyan)
         for sh in self.shapes:
             sh.render(painter)
