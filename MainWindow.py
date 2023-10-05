@@ -1,7 +1,7 @@
 from DataMenu import DataMenu
 from DrawBox import DrawBox
 from ShapesMenu import ShapesMenu
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QCheckBox
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
@@ -14,20 +14,27 @@ class MainWindow(QtWidgets.QWidget):
 
         self.paint = DrawBox()
         self.menu = ShapesMenu(self.paint)
+        self.dataMenu = DataMenu(self.paint)
         self.sizeLabel = QLabel()
         self.sizeLabel.setFixedSize(150, 50)
-
-        self.dataMenu = DataMenu(self.paint)
+        self.clickCreateCheck = QCheckBox("Click create")
+        self.clickCreateCheck.stateChanged.connect(self.paint.setClickCreate)
 
         self.lay = QtWidgets.QHBoxLayout()
         self.lay.addWidget(self.paint, stretch=2)
+
         self.menuLay = QtWidgets.QVBoxLayout()
         self.menuLay.addWidget(self.menu, stretch=0)
         self.menuLay.addWidget(self.dataMenu, stretch=0)
         self.lay.addLayout(self.menuLay)
-        self.lay.addWidget(self.sizeLabel, stretch=0)
+
+        self.sideLay = QtWidgets.QVBoxLayout()
+        self.sideLay.addWidget(self.sizeLabel, stretch=0)
+        self.sideLay.addWidget(self.clickCreateCheck, stretch=0)
+        self.lay.addLayout(self.sideLay)
+
         self.lay.setAlignment(self.menuLay, Qt.AlignTop)
-        self.lay.setAlignment(self.sizeLabel, Qt.AlignTop)
+        self.lay.setAlignment(self.sideLay, Qt.AlignTop)
         self.setLayout(self.lay)
 
     def resizeEvent(self, a0):

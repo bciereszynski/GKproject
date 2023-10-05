@@ -39,7 +39,7 @@ class Line:
     def __init__(self, point1, point2):
         self.point1 = point1
         self.point2 = point2
-        self._resizePoint = None
+        self._resizePoint = point2
         self._tolerance = 1
 
     def render(self, painter):
@@ -85,7 +85,7 @@ class Circle:
         self.r = None
         self.point1 = point1
         self.point2 = point2
-        self._resizePoint = None
+        self._resizePoint = point2
 
     def render(self, painter):
         self.point1.render(painter)
@@ -125,7 +125,7 @@ class Rectangle:
     def __init__(self, point1, point2):
         self.point1 = point1
         self.point2 = point2
-        self._resizePoint = None
+        self._resizePoint = point2
 
     def render(self, painter):
         self.point1.render(painter)

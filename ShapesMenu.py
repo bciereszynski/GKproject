@@ -1,7 +1,7 @@
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
-from shapes import Point, Rectangle, Line, Circle
+from shapes import Point
 from PyQt5.QtCore import Qt
 
 
@@ -22,7 +22,10 @@ class ShapesMenu(QtWidgets.QWidget):
         self.shapeTypeCombo.addItem("Line")
         self.shapeTypeCombo.addItem("Rectangle")
         self.shapeTypeCombo.addItem("Circle")
+        self.shapeTypeCombo.currentTextChanged.connect(self.paint.setShapeType)
         self.lay.addWidget(self.shapeTypeCombo)
+
+        self.lay.addSpacing(50)
 
         self.point1WidthLabel = QLabel("Point A x:")
         self.point1WidthSpin = QSpinBox()
@@ -58,10 +61,4 @@ class ShapesMenu(QtWidgets.QWidget):
     def createShape(self):
         point1 = Point(self.point1WidthSpin.value(), self.point1HeightSpin.value())
         point2 = Point(self.point2WidthSpin.value(), self.point2HeightSpin.value())
-        if self.shapeTypeCombo.currentText() == "Line":
-            self.paint.shapes.append(Line(point1, point2))
-        elif self.shapeTypeCombo.currentText() == "Rectangle":
-            self.paint.shapes.append(Rectangle(point1, point2))
-        elif self.shapeTypeCombo.currentText() == "Circle":
-            self.paint.shapes.append(Circle(point1, point2))
-        self.paint.update()
+        self.paint.createShape(point1, point2)
