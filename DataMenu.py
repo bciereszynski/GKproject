@@ -26,8 +26,10 @@ class DataMenu(QtWidgets.QWidget):
 
     def save(self):
         fileName = QFileDialog.getSaveFileName(self)
-        self.paint.saveData(fileName[0])
+        if fileName[0]:
+            self.paint.saveData(fileName[0])
 
     def load(self):
         fileName = QFileDialog.getOpenFileName(self)
-        self.paint.loadData(fileName[0])
+        if fileName[0]:
+            self.paint.loadData(fileName[0])

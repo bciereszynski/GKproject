@@ -20,7 +20,8 @@ class MainWindow(QtWidgets.QWidget):
 
         self.menu = ShapesMenu(self.paint)
         self.dataMenu = DataMenu(self.paint)
-        self.paint.readyToEditSignal = self.menu.editSlot
+        self.paint.readyToEditSignal = self.menu.editSlot  # connect
+        self.paint.stopEditSignal = self.menu.stopEditSlot  # connect
         self.sizeLabel = QLabel()
         self.sizeLabel.setFixedSize(150, 50)
         self.clickCreateCheck = QCheckBox("Click create")

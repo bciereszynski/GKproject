@@ -22,6 +22,7 @@ class DrawBox(QtWidgets.QWidget):
         self._initial_pos = None
 
         self.readyToEditSignal = None
+        self.stopEditSignal = None
 
     def saveData(self, fileName="data.txt"):
         with open(fileName, "wb") as outfile:
@@ -66,6 +67,7 @@ class DrawBox(QtWidgets.QWidget):
             self.createShape(point1, point2)
             self._objectToResize = self.shapes[-1]
             self.shapeSelected = self.shapes[-1]
+            self.emitReadyToEdit()
             self.update()
         # mode selecting-move-resize
         else:
@@ -86,6 +88,8 @@ class DrawBox(QtWidgets.QWidget):
         # select if smth was clicked
         if self.shapeSelected is not None:
             self.shapeSelected.setSelected(True)
+        else:
+            self.emitStopEdit()
 
         # update need for selection and deselection
         self.update()
@@ -147,5 +151,11 @@ class DrawBox(QtWidgets.QWidget):
     def emitReadyToEdit(self):
         try:
             QtCore.QTimer.singleShot(0, self.readyToEditSignal)
+        except:
+            print("slot is not connected")
+
+    def emitStopEdit(self):
+        try:
+            QtCore.QTimer.singleShot(0, self.stopEditSignal)
         except:
             print("slot is not connected")

@@ -53,6 +53,7 @@ class ShapesMenu(QtWidgets.QWidget):
 
         self.createButton = QPushButton("Create")
         self.createButton.clicked.connect(self.createShape)
+        self.createButton.setDefault(True)
         self.lay.addWidget(self.createButton)
 
         self.editButton = QPushButton("Edit")
@@ -75,7 +76,9 @@ class ShapesMenu(QtWidgets.QWidget):
 
     def editSlot(self):
         self.editButton.setEnabled(True)
+        self.editButton.setDefault(True)
         self.createButton.setEnabled(False)
+        self.createButton.setDefault(False)
         self.shapeTypeCombo.setEnabled(False)
         point1 = self.paint.shapeSelected.point1
         point2 = self.paint.shapeSelected.point2
@@ -83,3 +86,10 @@ class ShapesMenu(QtWidgets.QWidget):
         self.point1WidthSpin.setValue(point1.x)
         self.point2HeightSpin.setValue(point2.y)
         self.point2WidthSpin.setValue(point2.x)
+
+    def stopEditSlot(self):
+        self.editButton.setEnabled(False)
+        self.editButton.setDefault(False)
+        self.createButton.setEnabled(True)
+        self.createButton.setDefault(True)
+        self.shapeTypeCombo.setEnabled(True)
