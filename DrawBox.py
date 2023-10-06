@@ -14,7 +14,6 @@ class DrawBox(QtWidgets.QWidget):
         self.setMouseTracking(True)
 
         self.shapeType = "Line"
-        self.clickCreate = False
 
         self.shapes = []
 
@@ -39,9 +38,6 @@ class DrawBox(QtWidgets.QWidget):
                 sh.setSelected(False)
         self.update()
 
-    def setClickCreate(self, state):
-        self.clickCreate = bool(state)
-
     def setShapeType(self, name):
         self.shapeType = name
 
@@ -56,44 +52,20 @@ class DrawBox(QtWidgets.QWidget):
             sh.render(painter)
 
     def mousePressEvent(self, event):
-        # clear selection
         if self.shapeSelected is not None:
             self.shapeSelected.setSelected(False)
             self.shapeSelected = None
 
-        # mode click-create
-        if self.clickCreate:
-            point1 = Point(event.pos().x(), event.pos().y())
-            point2 = Point(event.pos().x(), event.pos().y())
-            self._initial_pos = event.pos()
-            self.createShape(point1, point2)
-            self._objectToResize = self.shapes[-1]
-            self.shapeSelected = self.shapes[-1]
-            self.emitReadyToEdit()
-            self.update()
-        # mode selecting-move-resize
-        else:
-            for sh in reversed(self.shapes):
-                if sh.checkResize(event.pos()):
-                    self._objectToResize = sh
-                    self.shapeSelected = sh
-                    self.emitReadyToEdit()
-                    self._initial_pos = event.pos()
-                    break
-                if sh.checkMove(event.pos()):
-                    self._objectToMove = sh
-                    self.shapeSelected = sh
-                    self.emitReadyToEdit()
-                    self._initial_pos = event.pos()
-                    break
+        if event.button() == Qt.LeftButton:
+            self.mouseLeftClickHandle(event.pos())
 
-        # select if smth was clicked
-        if self.shapeSelected is not None:
-            self.shapeSelected.setSelected(True)
-        else:
+        if event.button() == Qt.RightButton:
+            self.mouseRightClickHandle(event.pos())
+
+        if self.shapeSelected is None:
             self.emitStopEdit()
-
-        # update need for selection and deselection
+        else:
+            self.shapeSelected.setSelected(True)
         self.update()
 
         super(DrawBox, self).mousePressEvent(event)
@@ -161,16 +133,13 @@ class DrawBox(QtWidgets.QWidget):
 
     def determineCursor(self, position):
         cursor = QtGui.QCursor(QtCore.Qt.ArrowCursor)
-        if self.clickCreate:
-            cursor = QtGui.QCursor(QtCore.Qt.CrossCursor)
-        else:
-            for sh in reversed(self.shapes):
-                if sh.checkResize(position):
-                    cursor = QtGui.QCursor(QtCore.Qt.SizeAllCursor)
-                    break
-                if sh.checkMove(position):
-                    cursor = QtGui.QCursor(QtCore.Qt.OpenHandCursor)
-                    break
+        for sh in reversed(self.shapes):
+            if sh.checkResize(position):
+                cursor = QtGui.QCursor(QtCore.Qt.SizeAllCursor)
+                break
+            if sh.checkMove(position):
+                cursor = QtGui.QCursor(QtCore.Qt.OpenHandCursor)
+                break
 
         self.setCursor(cursor)
 
