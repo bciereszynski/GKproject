@@ -1,6 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pickle
 
+from PyQt5.QtCore import Qt
+
 from shapes import Line, Rectangle, Circle, Point
 
 
@@ -95,6 +97,30 @@ class DrawBox(QtWidgets.QWidget):
         self.update()
 
         super(DrawBox, self).mousePressEvent(event)
+
+    def mouseLeftClickHandle(self, position):
+        for sh in reversed(self.shapes):
+            if sh.checkResize(position):
+                self._objectToResize = sh
+                self.shapeSelected = sh
+                self.emitReadyToEdit()
+                self._initial_pos = position
+                break
+            if sh.checkMove(position):
+                self._objectToMove = sh
+                self.shapeSelected = sh
+                self.emitReadyToEdit()
+                self._initial_pos = position
+                break
+
+    def mouseRightClickHandle(self, position):
+        point1 = Point(position.x(), position.y())
+        point2 = Point(position.x(), position.y())
+        self.createShape(point1, point2)
+        self._initial_pos = position
+        self._objectToResize = self.shapes[-1]
+        self.shapeSelected = self.shapes[-1]
+        self.emitReadyToEdit()
 
     def mouseMoveEvent(self, event):
         if self._objectToResize is not None:

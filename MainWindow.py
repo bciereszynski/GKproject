@@ -20,12 +20,12 @@ class MainWindow(QtWidgets.QWidget):
 
         self.menu = ShapesMenu(self.paint)
         self.dataMenu = DataMenu(self.paint)
+
         self.paint.readyToEditSignal = self.menu.editSlot  # connect
         self.paint.stopEditSignal = self.menu.stopEditSlot  # connect
+
         self.sizeLabel = QLabel()
         self.sizeLabel.setFixedSize(150, 50)
-        self.clickCreateCheck = QCheckBox("Click create")
-        self.clickCreateCheck.stateChanged.connect(self.paint.setClickCreate)
 
         self.lay = QtWidgets.QHBoxLayout()
         self.lay.addWidget(self.paint, stretch=2)
@@ -37,7 +37,6 @@ class MainWindow(QtWidgets.QWidget):
 
         self.sideLay = QtWidgets.QVBoxLayout()
         self.sideLay.addWidget(self.sizeLabel, stretch=0)
-        self.sideLay.addWidget(self.clickCreateCheck, stretch=0)
         self.lay.addLayout(self.sideLay)
 
         self.lay.setAlignment(self.menuLay, Qt.AlignTop)
