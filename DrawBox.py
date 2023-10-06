@@ -18,8 +18,10 @@ class DrawBox(QtWidgets.QWidget):
 
         self._objectToMove = None
         self._objectToResize = None
-        self._objectSelected = None
+        self.shapeSelected = None
         self._initial_pos = None
+
+        self.readyToEditSignal = None
 
     def saveData(self, fileName="data.txt"):
         with open(fileName, "wb") as outfile:
@@ -30,6 +32,8 @@ class DrawBox(QtWidgets.QWidget):
         with open(fileName, "rb") as infile:
             # "wb" argument opens the file in binary mode
             self.shapes = pickle.load(infile)
+            for sh in self.shapes:
+                sh.setSelected(False)
         self.update()
 
     def setClickCreate(self, state):
@@ -50,9 +54,9 @@ class DrawBox(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         # clear selection
-        if self._objectSelected is not None:
-            self._objectSelected.setSelected(False)
-            self._objectSelected = None
+        if self.shapeSelected is not None:
+            self.shapeSelected.setSelected(False)
+            self.shapeSelected = None
 
         # mode click-create
         if self.clickCreate:
@@ -61,25 +65,27 @@ class DrawBox(QtWidgets.QWidget):
             self._initial_pos = event.pos()
             self.createShape(point1, point2)
             self._objectToResize = self.shapes[-1]
-            self._objectSelected = self.shapes[-1]
+            self.shapeSelected = self.shapes[-1]
             self.update()
         # mode selecting-move-resize
         else:
             for sh in reversed(self.shapes):
                 if sh.checkResize(event.pos()):
                     self._objectToResize = sh
-                    self._objectSelected = sh
+                    self.shapeSelected = sh
+                    self.emitReadyToEdit()
                     self._initial_pos = event.pos()
                     break
                 if sh.checkMove(event.pos()):
                     self._objectToMove = sh
-                    self._objectSelected = sh
+                    self.shapeSelected = sh
+                    self.emitReadyToEdit()
                     self._initial_pos = event.pos()
                     break
 
         # select if smth was clicked
-        if self._objectSelected is not None:
-            self._objectSelected.setSelected(True)
+        if self.shapeSelected is not None:
+            self.shapeSelected.setSelected(True)
 
         # update need for selection and deselection
         self.update()
@@ -91,10 +97,12 @@ class DrawBox(QtWidgets.QWidget):
             delta = event.pos() - self._initial_pos
             self._objectToResize.resize(delta)
             self._initial_pos = event.pos()
+            self.emitReadyToEdit()
             self.update()
         elif self._objectToMove is not None:
             delta = event.pos() - self._initial_pos
             self._objectToMove.move(delta)
+            self.emitReadyToEdit()
             self.update()
             self._initial_pos = event.pos()
         else:
@@ -116,6 +124,11 @@ class DrawBox(QtWidgets.QWidget):
             self.shapes.append(Circle(point1, point2))
         self.update()
 
+    def editShape(self, point1, point2):
+        self.shapeSelected.point1 = point1
+        self.shapeSelected.point2 = point2
+        self.update()
+
     def determineCursor(self, position):
         cursor = QtGui.QCursor(QtCore.Qt.ArrowCursor)
         if self.clickCreate:
@@ -130,3 +143,9 @@ class DrawBox(QtWidgets.QWidget):
                     break
 
         self.setCursor(cursor)
+
+    def emitReadyToEdit(self):
+        try:
+            QtCore.QTimer.singleShot(0, self.readyToEditSignal)
+        except:
+            print("slot is not connected")

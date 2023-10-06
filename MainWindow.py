@@ -13,8 +13,14 @@ class MainWindow(QtWidgets.QWidget):
         self.setWindowTitle("GK")
 
         self.paint = DrawBox()
+        try:
+            self.paint.loadData("data.txt")
+        except:
+            print("Error - file does not exists")
+
         self.menu = ShapesMenu(self.paint)
         self.dataMenu = DataMenu(self.paint)
+        self.paint.readyToEditSignal = self.menu.editSlot
         self.sizeLabel = QLabel()
         self.sizeLabel.setFixedSize(150, 50)
         self.clickCreateCheck = QCheckBox("Click create")
