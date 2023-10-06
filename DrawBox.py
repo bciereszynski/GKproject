@@ -86,6 +86,7 @@ class DrawBox(QtWidgets.QWidget):
                 break
 
     def mouseRightClickHandle(self, position):
+        self.setCursor(QtGui.QCursor(QtCore.Qt.CrossCursor))
         point1 = Point(position.x(), position.y())
         point2 = Point(position.x(), position.y())
         self.createShape(point1, point2)
@@ -115,6 +116,7 @@ class DrawBox(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event):
         self._objectToResize = None
         self._objectToMove = None
+        self.determineCursor(event.pos())
         super(DrawBox, self).mouseReleaseEvent(event)
 
     def createShape(self, point1, point2):
