@@ -9,11 +9,15 @@ class Point:
         self.x = x
         self.y = y
 
-    def render(self, painter):
+    def render(self, painter, selected=False):
         tempBrush = painter.brush()
         tempPen = painter.pen()
-        painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
-        painter.setPen(QtCore.Qt.darkRed)
+        if selected:
+            painter.setBrush(QtGui.QBrush(QtCore.Qt.red))
+            painter.setPen(QtCore.Qt.darkRed)
+        else:
+            painter.setBrush(QtGui.QBrush(QtCore.Qt.green))
+            painter.setPen(QtCore.Qt.darkGreen)
         rect = QtCore.QRect(QtCore.QPoint(self.x-3, self.y-3), QtCore.QSize(6, 6))
         painter.drawRect(rect)
         painter.setBrush(tempBrush)
@@ -42,10 +46,14 @@ class Shape(ABC):
         self.point1 = point1
         self.point2 = point2
         self._resizePoint = point2
+        self.isSelected = False
 
     def render(self, painter):
-        self.point1.render(painter)
-        self.point2.render(painter)
+        self.point1.render(painter, self.isSelected)
+        self.point2.render(painter, self.isSelected)
+
+    def setSelected(self, isSelected):
+        self.isSelected = isSelected
 
     def resize(self, delta):
         if self._resizePoint is not None:
