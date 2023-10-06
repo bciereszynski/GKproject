@@ -61,6 +61,11 @@ class ShapesMenu(QtWidgets.QWidget):
         self.editButton.setEnabled(False)
         self.lay.addWidget(self.editButton)
 
+        self.deleteButton = QPushButton("Delete")
+        self.deleteButton.clicked.connect(self.deleteShape)
+        self.deleteButton.setEnabled(False)
+        self.lay.addWidget(self.deleteButton)
+
         self.lay.setAlignment(Qt.AlignTop)
         self.setLayout(self.lay)
 
@@ -74,9 +79,13 @@ class ShapesMenu(QtWidgets.QWidget):
         point2 = Point(self.point2WidthSpin.value(), self.point2HeightSpin.value())
         self.paint.editShape(point1, point2)
 
+    def deleteShape(self):
+        self.paint.deleteShape()
+
     def editSlot(self):
         self.editButton.setEnabled(True)
         self.editButton.setDefault(True)
+        self.deleteButton.setEnabled(True)
         self.createButton.setEnabled(False)
         self.createButton.setDefault(False)
         self.shapeTypeCombo.setEnabled(False)
@@ -90,6 +99,7 @@ class ShapesMenu(QtWidgets.QWidget):
     def stopEditSlot(self):
         self.editButton.setEnabled(False)
         self.editButton.setDefault(False)
+        self.deleteButton.setEnabled(False)
         self.createButton.setEnabled(True)
         self.createButton.setDefault(True)
         self.shapeTypeCombo.setEnabled(True)

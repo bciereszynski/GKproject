@@ -131,6 +131,10 @@ class DrawBox(QtWidgets.QWidget):
         self.shapeSelected.point2 = point2
         self.update()
 
+    def deleteShape(self):
+        self.shapes.remove(self.shapeSelected)
+        self.update()
+
     def determineCursor(self, position):
         cursor = QtGui.QCursor(QtCore.Qt.ArrowCursor)
         for sh in reversed(self.shapes):
