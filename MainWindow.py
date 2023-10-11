@@ -1,47 +1,30 @@
-from DataMenu import DataMenu
-from DrawBox import DrawBox
-from ShapesMenu import ShapesMenu
-from PyQt5.QtWidgets import QLabel, QCheckBox
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
+
+from PrimitivesTab import PrimitivesTab
 
 
-class MainWindow(QtWidgets.QWidget):
+class MainWindow(QWidget):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.setGeometry(QtCore.QRect(200, 100, 1200, 600))
         self.setWindowTitle("GK")
 
-        self.paint = DrawBox()
-        try:
-            self.paint.loadData("data.txt")
-        except:
-            print("Error - file does not exists")
+        self.layout = QVBoxLayout(self)
 
-        self.menu = ShapesMenu(self.paint)
-        self.dataMenu = DataMenu(self.paint)
+        # Initialize tab screen
+        self.tabs = QTabWidget()
+        self.primitivesTab = PrimitivesTab()
+        self.filesTab = QWidget()
+        self.tabs.resize(300, 200)
 
-        self.paint.readyToEditSignal = self.menu.editSlot  # connect
-        self.paint.stopEditSignal = self.menu.stopEditSlot  # connect
+        # Add tabs
+        self.tabs.addTab(self.primitivesTab, "1. Graphical Primitives")
+        self.tabs.addTab(self.filesTab, "2. Files")
 
-        self.sizeLabel = QLabel()
-        self.sizeLabel.setFixedSize(150, 50)
+        self.layout.addWidget(self.tabs)
+        self.setLayout(self.layout)
 
-        self.lay = QtWidgets.QHBoxLayout()
-        self.lay.addWidget(self.paint, stretch=2)
-
-        self.menuLay = QtWidgets.QVBoxLayout()
-        self.menuLay.addWidget(self.menu, stretch=0)
-        self.menuLay.addWidget(self.dataMenu, stretch=0)
-        self.lay.addLayout(self.menuLay)
-
-        self.sideLay = QtWidgets.QVBoxLayout()
-        self.sideLay.addWidget(self.sizeLabel, stretch=0)
-        self.lay.addLayout(self.sideLay)
-
-        self.lay.setAlignment(self.menuLay, Qt.AlignTop)
-        self.lay.setAlignment(self.sideLay, Qt.AlignTop)
-        self.setLayout(self.lay)
-
-    def resizeEvent(self, a0):
-        self.sizeLabel.setText(f"Field size: {self.paint.width()}, {self.paint.height()}")
+        self.authorLabel = QLabel("Author: Bartosz Piotr Ciereszyński")
+        self.authorLabel.setAlignment(QtCore.Qt.AlignRight)
+        self.layout.addWidget(self.authorLabel)
