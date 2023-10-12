@@ -3,7 +3,7 @@ import pickle
 
 from PyQt5.QtCore import Qt
 
-from shapes import Line, Rectangle, Circle, Point
+from Primitives.shapes import Line, Rectangle, Circle, Point
 
 
 class DrawBox(QtWidgets.QWidget):
@@ -15,7 +15,7 @@ class DrawBox(QtWidgets.QWidget):
 
         self.shapeType = "Line"
 
-        self.shapes = []
+        self.shapesList = []
 
         self._objectToMove = None
         self._objectToResize = None
@@ -28,13 +28,13 @@ class DrawBox(QtWidgets.QWidget):
     def saveData(self, fileName="data.txt"):
         with open(fileName, "wb") as outfile:
             # "wb" argument opens the file in binary mode
-            pickle.dump(self.shapes, outfile)
+            pickle.dump(self.shapesList, outfile)
 
     def loadData(self, fileName="data.txt"):
         with open(fileName, "rb") as infile:
             # "wb" argument opens the file in binary mode
-            self.shapes = pickle.load(infile)
-            for sh in self.shapes:
+            self.shapesList = pickle.load(infile)
+            for sh in self.shapesList:
                 sh.setSelected(False)
         self.update()
 
@@ -48,7 +48,7 @@ class DrawBox(QtWidgets.QWidget):
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
         painter.setPen(QtCore.Qt.darkCyan)
-        for sh in self.shapes:
+        for sh in self.shapesList:
             sh.render(painter)
 
     def mousePressEvent(self, event):
@@ -71,7 +71,7 @@ class DrawBox(QtWidgets.QWidget):
         super(DrawBox, self).mousePressEvent(event)
 
     def mouseLeftClickHandle(self, position):
-        for sh in reversed(self.shapes):
+        for sh in reversed(self.shapesList):
             if sh.checkResize(position):
                 self._objectToResize = sh
                 self.shapeSelected = sh
@@ -91,8 +91,8 @@ class DrawBox(QtWidgets.QWidget):
         point2 = Point(position.x(), position.y())
         self.createShape(point1, point2)
         self._initial_pos = position
-        self._objectToResize = self.shapes[-1]
-        self.shapeSelected = self.shapes[-1]
+        self._objectToResize = self.shapesList[-1]
+        self.shapeSelected = self.shapesList[-1]
         self.emitReadyToEdit()
 
     def mouseMoveEvent(self, event):
@@ -121,11 +121,11 @@ class DrawBox(QtWidgets.QWidget):
 
     def createShape(self, point1, point2):
         if self.shapeType == "Line":
-            self.shapes.append(Line(point1, point2))
+            self.shapesList.append(Line(point1, point2))
         elif self.shapeType == "Rectangle":
-            self.shapes.append(Rectangle(point1, point2))
+            self.shapesList.append(Rectangle(point1, point2))
         elif self.shapeType == "Circle":
-            self.shapes.append(Circle(point1, point2))
+            self.shapesList.append(Circle(point1, point2))
         self.update()
 
     def editShape(self, point1, point2):
@@ -134,12 +134,12 @@ class DrawBox(QtWidgets.QWidget):
         self.update()
 
     def deleteShape(self):
-        self.shapes.remove(self.shapeSelected)
+        self.shapesList.remove(self.shapeSelected)
         self.update()
 
     def determineCursor(self, position):
         cursor = QtGui.QCursor(QtCore.Qt.ArrowCursor)
-        for sh in reversed(self.shapes):
+        for sh in reversed(self.shapesList):
             if sh.checkResize(position):
                 cursor = QtGui.QCursor(QtCore.Qt.SizeAllCursor)
                 break

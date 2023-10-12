@@ -1,7 +1,7 @@
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QComboBox, QSpinBox, QPushButton, QLabel
 
-from shapes import Point
+from Primitives.shapes import Point
 from PyQt5.QtCore import Qt
 
 

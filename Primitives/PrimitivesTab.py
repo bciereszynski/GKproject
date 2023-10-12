@@ -1,8 +1,8 @@
-from DataMenu import DataMenu
-from DrawBox import DrawBox
-from ShapesMenu import ShapesMenu
-from PyQt5.QtWidgets import QLabel, QCheckBox
-from PyQt5 import QtCore, QtWidgets
+from Primitives.DataMenu import DataMenu
+from Primitives.DrawBox import DrawBox
+from Primitives.ShapesMenu import ShapesMenu
+from PyQt5.QtWidgets import QLabel
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 
@@ -11,11 +11,6 @@ class PrimitivesTab(QtWidgets.QWidget):
         super(PrimitivesTab, self).__init__(parent)
 
         self.paint = DrawBox()
-        try:
-            self.paint.loadData("data.txt")
-        except:
-            print("Error - file does not exists")
-
         self.menu = ShapesMenu(self.paint)
         self.dataMenu = DataMenu(self.paint)
 

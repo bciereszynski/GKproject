@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 
-from PrimitivesTab import PrimitivesTab
+from Primitives.PrimitivesTab import PrimitivesTab
 
 
 class MainWindow(QWidget):
