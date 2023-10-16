@@ -1,3 +1,5 @@
+import threading
+
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
 
 from Files.PpmHeader import PpmHeader
@@ -11,10 +13,14 @@ class FilesTab(QWidget):
         self.lay = QVBoxLayout()
 
         self.loadPpmButton = QPushButton("Load PPM")
-        self.loadPpmButton.clicked.connect(self.loadPPM)
+        self.loadPpmButton.clicked.connect(self.loadBtnCommand)
 
         self.lay.addWidget(self.loadPpmButton)
         self.setLayout(self.lay)
+
+    def loadBtnCommand(self):
+        thread = threading.Thread(target=self.loadPPM, args=())
+        thread.start()
 
     def loadPPM(self):
         with open("C:\\Users\\bcier\\PycharmProjects\\GKproject\\ppm-big.ppm", "r") as file:
