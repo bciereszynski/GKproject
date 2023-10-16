@@ -1,6 +1,9 @@
 import threading
+from timeit import default_timer as timer
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, qRgb, QPixmap
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog
 
 from Files.PpmHeader import PpmHeader
 from Files.SyntaxException import SyntaxException
@@ -14,28 +17,46 @@ class FilesTab(QWidget):
 
         self.loadPpmButton = QPushButton("Load PPM")
         self.loadPpmButton.clicked.connect(self.loadBtnCommand)
+        self.lay.setAlignment(self.loadPpmButton, Qt.AlignTop)
 
         self.lay.addWidget(self.loadPpmButton)
         self.setLayout(self.lay)
+
+        self.label = QLabel()
+        self.lay.addWidget(self.label)
+        self.lay.setAlignment(self.label, Qt.AlignCenter)
 
     def loadBtnCommand(self):
         thread = threading.Thread(target=self.loadPPM, args=())
         thread.start()
 
     def loadPPM(self):
-        with open("C:\\Users\\bcier\\PycharmProjects\\GKproject\\ppm-big.ppm", "r") as file:
+
+        fileName = QFileDialog.getOpenFileName(self)
+        start = timer()
+        if not fileName[0]:
+            return
+
+        with open(fileName[0], "r") as file:
             lines = file.readlines()
+
         header, currentLine = self.__readFileHeader(lines)
-        lineIndex = lines.index(currentLine)
-        lines = lines[lineIndex:]
-        pixels = self.__readP3FileData(lines, header)
-        print(pixels)
+
+        image = QImage(header.columns, header.rows, QImage.Format_RGB32)
+        self.__readP3FileData(lines, header, image)
+
+        end = timer()
+        print(end - start)
+        image = image.scaledToWidth(1200)
+        image = image.scaledToHeight(600)
+        pixmap = QPixmap().fromImage(image)
+        self.label.setPixmap(pixmap)
 
     @staticmethod
-    def __readP3FileData(lines, header):
-        pixels = [[]]
+    def __readP3FileData(lines, header, image):
         rgb = []
         currentRow = 0
+        currentCol = 0
 
         # continue where header ends
         line = lines[0]
@@ -50,47 +71,52 @@ class FilesTab(QWidget):
                     break
                 try:
                     number = int(word)
-                except(Exception):
+                except Exception:
                     raise SyntaxException("Integer expected - " + word)
 
                 rgb.append(number)
                 if len(rgb) == 3:
-                    if len(pixels[currentRow]) >= header.columns:
-                        pixels.append([])
+                    if currentCol >= header.columns:
+                        currentCol = 0
                         currentRow += 1
-                    pixels[currentRow].append(rgb)
+                    value = qRgb(rgb[0], rgb[1], rgb[2])
+                    image.setPixel(currentCol, currentRow, value)
+                    currentCol += 1
                     rgb = []
-                words = None
+            words = None
 
-        if rgb != [] or currentRow != header.rows - 1 or len(pixels[currentRow]) != header.columns:
-            raise SyntaxException("Data not match header")
-        return pixels
+        if rgb:
+            raise SyntaxException("Data not match header - rgb error")
+        if currentRow != header.rows - 1 or currentCol != header.columns:
+            raise SyntaxException("Data not match header - pixels error")
 
     @staticmethod
     def __readFileHeader(lines):
         header = PpmHeader()
-        for line in lines:
+        while lines:
+            line = lines[0]
             for word in line.split():
                 if word[0] == "#":
                     break
                 if header.format is None:
                     header.format = word
-                    if header.format != "P3" and format != "P4":
+                    if header.format != "P3" and format != "P6":
                         raise SyntaxException("Bad format - " + header.format)
                 elif header.columns is None:
                     try:
                         header.columns = int(word)
-                    except(Exception):
+                    except Exception:
                         raise SyntaxException("Integer expected - " + word)
                 elif header.rows is None:
                     try:
                         header.rows = int(word)
-                    except(Exception):
+                    except Exception:
                         raise SyntaxException("Integer expected - " + word)
                 elif header.colorScale is None:
                     try:
                         header.colorScale = int(word)
-                    except(Exception):
+                    except Exception:
                         raise SyntaxException("Integer expected - " + word)
                     return header, line
+            lines.remove(line)
         raise SyntaxException("Header incomplete")
