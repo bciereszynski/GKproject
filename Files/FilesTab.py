@@ -16,23 +16,30 @@ class FilesTab(QWidget):
         self.lay.addWidget(self.loadPpmButton)
         self.setLayout(self.lay)
 
-        self.loadPPM()
-
     def loadPPM(self):
-        with open("C:\\Users\\bcier\\PycharmProjects\\GKproject\\ppm.txt", "r", 2**10) as file:
-            header = self.__readFileHeader(file)
-            pixels = self.__readP3FileData(file, header)
+        with open("C:\\Users\\bcier\\PycharmProjects\\GKproject\\ppm-big.ppm", "r") as file:
+            lines = file.readlines()
+        header, currentLine = self.__readFileHeader(lines)
+        lineIndex = lines.index(currentLine)
+        lines = lines[lineIndex:]
+        pixels = self.__readP3FileData(lines, header)
         print(pixels)
 
     @staticmethod
-    def __readP3FileData(file, header):
+    def __readP3FileData(lines, header):
         pixels = [[]]
         rgb = []
         currentRow = 0
-        line = file.readline()
 
-        while line:
-            for word in line.split():
+        # continue where header ends
+        line = lines[0]
+        words = line.split()
+        words = words[words.index(str(header.colorScale))+1:]
+
+        for line in lines:
+            if words is None:
+                words = line.split()
+            for word in words:
                 if word[0] == "#":
                     break
                 try:
@@ -47,17 +54,16 @@ class FilesTab(QWidget):
                         currentRow += 1
                     pixels[currentRow].append(rgb)
                     rgb = []
-            line = file.readline()
+                words = None
 
         if rgb != [] or currentRow != header.rows - 1 or len(pixels[currentRow]) != header.columns:
             raise SyntaxException("Data not match header")
         return pixels
 
     @staticmethod
-    def __readFileHeader(file):
+    def __readFileHeader(lines):
         header = PpmHeader()
-        line = file.readline()
-        while line:
+        for line in lines:
             for word in line.split():
                 if word[0] == "#":
                     break
@@ -80,10 +86,5 @@ class FilesTab(QWidget):
                         header.colorScale = int(word)
                     except(Exception):
                         raise SyntaxException("Integer expected - " + word)
-                else:
-                    raise SyntaxException("Unexpected token after header - " + word)
-            if not header.isComplete():
-                line = file.readline()
-            else:
-                break
-        return header
+                    return header, line
+        raise SyntaxException("Header incomplete")
