@@ -37,13 +37,21 @@ class FilesTab(QWidget):
         if not fileName[0]:
             return
 
-        with open(fileName[0], "r") as file:
+        with open(fileName[0], "rb") as file:
+            header, currentLine = self.__readFileHeader(file)
             lines = file.readlines()
 
-        header, currentLine = self.__readFileHeader(lines)
-
         image = QImage(header.columns, header.rows, QImage.Format_RGB32)
-        self.__readP3FileData(lines, header, image)
+        if header.format == "P3":
+            # continue where header ends
+            words = currentLine.split()
+            words = words[words.index(str(header.colorScale).encode()) + 1:]
+            lines.insert(0, ' '.join(words).encode())
+            self.__readP3FileData(lines, header, image)
+        elif header.format == "P6":
+            self.__readP6FileData(lines, header, image)
+        else:
+            raise SyntaxException("Unknown format")
 
         end = timer()
         print(end - start)
@@ -53,26 +61,44 @@ class FilesTab(QWidget):
         self.label.setPixmap(pixmap)
 
     @staticmethod
-    def __readP3FileData(lines, header, image):
+    def __readP6FileData(lines, header, image):
         rgb = []
         currentRow = 0
         currentCol = 0
 
-        # continue where header ends
-        line = lines[0]
-        words = line.split()
-        words = words[words.index(str(header.colorScale))+1:]
+        if header.colorScale != 255:
+            raise SyntaxException("Invalid color scale")
 
         for line in lines:
-            if words is None:
-                words = line.split()
+            for number in line:
+                rgb.append(number)
+                if len(rgb) == 3:
+                    if currentCol >= header.columns:
+                        currentCol = 0
+                        currentRow += 1
+                    value = qRgb(rgb[0], rgb[1], rgb[2])
+                    image.setPixel(currentCol, currentRow, value)
+                    currentCol += 1
+                    rgb = []
+        if rgb:
+            raise SyntaxException("Data not match header - rgb error")
+        if currentRow != header.rows - 1 or currentCol != header.columns:
+            raise SyntaxException("Data not match header - pixels error")
+
+    @staticmethod
+    def __readP3FileData(lines, header, image):
+        rgb = []
+        currentRow = 0
+        currentCol = 0
+        for line in lines:
+            words = line.split()
             for word in words:
-                if word[0] == "#":
-                    break
                 try:
-                    number = int(word)
+                    if chr(word[0]) == "#":
+                        break
+                    number = int(word.decode())
                 except Exception:
-                    raise SyntaxException("Integer expected - " + word)
+                    raise SyntaxException("Not integer passed")
 
                 rgb.append(number)
                 if len(rgb) == 3:
@@ -83,7 +109,6 @@ class FilesTab(QWidget):
                     image.setPixel(currentCol, currentRow, value)
                     currentCol += 1
                     rgb = []
-            words = None
 
         if rgb:
             raise SyntaxException("Data not match header - rgb error")
@@ -91,16 +116,17 @@ class FilesTab(QWidget):
             raise SyntaxException("Data not match header - pixels error")
 
     @staticmethod
-    def __readFileHeader(lines):
+    def __readFileHeader(file):
         header = PpmHeader()
-        while lines:
-            line = lines[0]
+        line = file.readline()
+        while line:
             for word in line.split():
+                word = word.decode()
                 if word[0] == "#":
                     break
                 if header.format is None:
                     header.format = word
-                    if header.format != "P3" and format != "P6":
+                    if header.format != "P3" and header.format != "P6":
                         raise SyntaxException("Bad format - " + header.format)
                 elif header.columns is None:
                     try:
@@ -117,6 +143,8 @@ class FilesTab(QWidget):
                         header.colorScale = int(word)
                     except Exception:
                         raise SyntaxException("Integer expected - " + word)
+                    if not 0 < header.colorScale < 65536:
+                        raise SyntaxException("Invalid color scale")
                     return header, line
-            lines.remove(line)
+            line = file.readline()
         raise SyntaxException("Header incomplete")
