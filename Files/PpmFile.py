@@ -2,14 +2,23 @@ from PyQt5.QtGui import QImage, qRgb
 from PyQt5.QtWidgets import QFileDialog
 from timeit import default_timer as timer
 
-from Files.PpmHeader import PpmHeader
 from Files.SyntaxException import SyntaxException
 
 
 class PpmFile:
+    class PpmHeader:
+        def __init__(self):
+            self.format = None
+            self.rows = None
+            self.columns = None
+            self.colorScale = None
+
+        def isComplete(self):
+            return (self.format is not None and self.rows is not None
+                    and self.columns is not None and self.colorScale is not None)
 
     def __init__(self):
-        self.header = PpmHeader()
+        self.header = self.PpmHeader()
         self.currentRgb = []
         self.currentRow = 0
         self.currentCol = 0
