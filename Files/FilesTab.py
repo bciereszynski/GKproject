@@ -1,8 +1,8 @@
 import threading
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog, QMessageBox
+from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog, QMessageBox, QInputDialog
 
 from Files.PpmFile import PpmFile
 from Files.SyntaxException import SyntaxException
@@ -16,18 +16,40 @@ class FilesTab(QWidget):
 
         self.lay = QVBoxLayout()
 
-        self.loadPpmButton = QPushButton("Load PPM")
-        self.loadPpmButton.clicked.connect(self.loadBtnCommand)
-        self.lay.setAlignment(self.loadPpmButton, Qt.AlignTop)
+        self.loadFileButton = QPushButton("Load image file")
+        self.loadFileButton.clicked.connect(self.loadBtnCommand)
+        self.lay.setAlignment(self.loadFileButton, Qt.AlignTop)
+        self.lay.addWidget(self.loadFileButton)
 
-        self.lay.addWidget(self.loadPpmButton)
         self.setLayout(self.lay)
 
         self.label = QLabel()
         self.lay.addWidget(self.label)
         self.lay.setAlignment(self.label, Qt.AlignCenter)
 
+        self.saveFileButton = QPushButton("Save image file")
+        self.saveFileButton.clicked.connect(self.saveBtnCommand)
+        self.lay.setAlignment(self.saveFileButton, Qt.AlignTop)
+        self.lay.addWidget(self.saveFileButton)
+
         self.exceptSignal.connect(self.__showExceptionMessage)
+
+    def saveBtnCommand(self):
+        try:
+            image = self.label.pixmap().toImage()
+        except Exception:
+            self.exceptSignal.emit("No image to save")
+            return
+
+        (value, ok) = QInputDialog().getInt(self, "Kompresja", "Stopień kompresji:", 0, 0, 100)
+        if not ok:
+            return
+        
+        fileName = QFileDialog.getSaveFileName(self)
+        if not fileName[0]:
+            return
+
+        image.save(fileName[0], "jpeg", 100 - value)
 
     def loadBtnCommand(self):
         thread = threading.Thread(target=self.loadFile, args=())
@@ -45,6 +67,9 @@ class FilesTab(QWidget):
             except SyntaxException as ex:
                 self.exceptSignal.emit(ex.message)
                 return
+        elif fileName[0].find(".jpg") != -1 or fileName[0].find(".jpeg") != -1:
+            image = QImage()
+            image.load(fileName[0], "jpeg")
         else:
             self.exceptSignal.emit("File format is not supported - " + fileName[0])
             return
