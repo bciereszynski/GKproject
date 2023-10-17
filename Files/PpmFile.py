@@ -25,11 +25,11 @@ class PpmFile:
         self.image = None
 
     def load(self, fileName):
+        start = timer()
         with open(fileName, "rb") as file:
             currentLine = self.__readFileHeader(file)
-            lines = file.readlines()
+            data = file.read()
 
-        start = timer()
         self.image = QImage(self.header.columns, self.header.rows, QImage.Format_RGB32)
 
         if self.header.format == "P3":
@@ -37,20 +37,16 @@ class PpmFile:
             words = currentLine.split()
             words = words[words.index(str(self.header.colorScale).encode()) + 1:]  # problem width or height = scale
             words = [byte.decode() for byte in words]
-            lines.insert(0, ' '.join(words).encode())
-            self.__readP3FileData(lines)
+            data = ' '.join(words).encode() + "\n".encode() + data
+            self.__readP3FileData(data)
         elif self.header.format == "P6":
-            self.__readP6FileData(lines)
+            self.__readP6FileData(data)
         else:
             raise SyntaxException("Unknown format")
 
         end = timer()
         print(end - start)
 
-        if self.currentRgb:
-            raise SyntaxException("Data not match header - rgb error")
-        if self.currentRow != self.header.rows - 1 or self.currentCol != self.header.columns:
-            raise SyntaxException("Data not match header - pixels error")
         return self.image
 
     def __readFileHeader(self, file):
@@ -87,33 +83,28 @@ class PpmFile:
             line = file.readline()
         raise SyntaxException("Header incomplete")
 
-    def addRgb(self, number):
+    def __readP6FileData(self, data):
+        try:
+            self.image = QImage(data, self.header.columns, self.header.rows, self.header.columns*3, QImage.Format_RGB888)
+        except:
+            raise SyntaxException("File data corrupted")
+
+    def __readP3FileData(self, data):
+
+        begin = data.find("#".encode())
+        while begin != -1:
+            end = data.find("\n".encode(), begin)
+            data = data[:begin-1] + data[end:]
+            begin = data.find("#".encode(), end)
+
         if self.header.colorScale != 255:
-            number = int(number / self.header.colorScale * 255)
-        self.currentRgb.append(number)
-        if len(self.currentRgb) == 3:
-            if self.currentCol >= self.header.columns:
-                self.currentCol = 0
-                self.currentRow += 1
-            value = qRgb(self.currentRgb[0], self.currentRgb[1], self.currentRgb[2])
-            self.image.setPixel(self.currentCol, self.currentRow, value)
-            self.currentCol += 1
-            self.currentRgb = []
+            data = [int(int(byte.decode())/self.header.colorScale * 255) for byte in data.split()]
+        else:
+            data = [int(byte.decode()) for byte in data.split()]
 
-    def __readP6FileData(self, lines):
-        for line in lines:
-            for number in line:
-                self.addRgb(number)
+        data = bytes(data)
 
-    def __readP3FileData(self, lines):
-        for line in lines:
-            words = line.split()
-            for word in words:
-                try:
-                    if chr(word[0]) == "#":
-                        break
-                    number = int(word.decode())
-                except UnicodeError:
-                    raise SyntaxException("Not integer passed")
-
-                self.addRgb(number)
+        try:
+            self.image = QImage(data, self.header.columns, self.header.rows, self.header.columns*3, QImage.Format_RGB888)
+        except:
+            raise SyntaxException("File data corrupted")
