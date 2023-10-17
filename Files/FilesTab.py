@@ -74,10 +74,19 @@ class FilesTab(QWidget):
             self.exceptSignal.emit("File format is not supported - " + fileName[0])
             return
 
-        image = image.scaledToWidth(1200)
-        image = image.scaledToHeight(600)
+        image = self.__scaleImage(image)
         pixmap = QPixmap().fromImage(image)
         self.label.setPixmap(pixmap)
+
+    def __scaleImage(self, image):
+        if image.width() >= image.height():
+            if image.width() > 1000:
+                image = image.scaledToWidth(self.width() - 20, Qt.SmoothTransformation)
+            else:
+                image = image.scaledToWidth(self.width() - 20)
+        else:
+            image = image.scaledToHeight(self.height() - 100)
+        return image
 
     @staticmethod
     def __showExceptionMessage(msg):
