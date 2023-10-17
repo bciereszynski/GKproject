@@ -88,6 +88,8 @@ class PpmFile:
         raise SyntaxException("Header incomplete")
 
     def addRgb(self, number):
+        if self.header.colorScale != 255:
+            number = int(number / self.header.colorScale * 255)
         self.currentRgb.append(number)
         if len(self.currentRgb) == 3:
             if self.currentCol >= self.header.columns:
@@ -99,9 +101,6 @@ class PpmFile:
             self.currentRgb = []
 
     def __readP6FileData(self, lines):
-        if self.header.colorScale != 255:
-            raise SyntaxException("Invalid color scale")
-
         for line in lines:
             for number in line:
                 self.addRgb(number)
