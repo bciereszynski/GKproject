@@ -36,6 +36,7 @@ class PpmFile:
             # continue where header ends
             words = currentLine.split()
             words = words[words.index(str(self.header.colorScale).encode()) + 1:]  # problem width or height = scale
+            words = [byte.decode() for byte in words]
             lines.insert(0, ' '.join(words).encode())
             self.__readP3FileData(lines)
         elif self.header.format == "P6":
