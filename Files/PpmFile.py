@@ -83,28 +83,34 @@ class PpmFile:
             line = file.readline()
         raise SyntaxException("Header incomplete")
 
-    def __readP6FileData(self, data):
-        try:
-            self.image = QImage(data, self.header.columns, self.header.rows, self.header.columns*3, QImage.Format_RGB888)
-        except:
-            raise SyntaxException("File data corrupted")
-
     def __readP3FileData(self, data):
-
         begin = data.find("#".encode())
         while begin != -1:
             end = data.find("\n".encode(), begin)
-            data = data[:begin-1] + data[end:]
+            data = data[:begin - 1] + data[end:]
             begin = data.find("#".encode(), end)
 
+        try:
+            if self.header.colorScale != 255:
+                data = [int(int(byte.decode()) / self.header.colorScale * 255) for byte in data.split()]
+            else:
+                data = [int(byte.decode()) for byte in data.split()]
+            data = bytes(data)
+        except Exception:
+            raise SyntaxException("File data corrupted")
+
+        self.__loadImageFromData(data)
+
+    def __readP6FileData(self, data):
         if self.header.colorScale != 255:
-            data = [int(int(byte.decode())/self.header.colorScale * 255) for byte in data.split()]
-        else:
-            data = [int(byte.decode()) for byte in data.split()]
+            raise SyntaxException("Invalid color scale")
 
-        data = bytes(data)
+        self.__loadImageFromData(data)
 
+    def __loadImageFromData(self, data):
+        if len(data) != self.header.columns*3*self.header.rows:
+            raise SyntaxException("File data corrupted")
         try:
             self.image = QImage(data, self.header.columns, self.header.rows, self.header.columns*3, QImage.Format_RGB888)
-        except:
+        except Exception:
             raise SyntaxException("File data corrupted")

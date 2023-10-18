@@ -69,7 +69,10 @@ class FilesTab(QWidget):
                 return
         elif fileName[0].find(".jpg") != -1 or fileName[0].find(".jpeg") != -1:
             image = QImage()
-            image.load(fileName[0], "jpeg")
+            try:
+                image.load(fileName[0], "jpeg")
+            except:
+                self.exceptSignal.emit("Error occurred during file load - " + fileName[0])
         else:
             self.exceptSignal.emit("File format is not supported - " + fileName[0])
             return
