@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 
+from Colors.ColorsTab import ColorsTab
 from Files.FilesTab import FilesTab
 from Primitives.PrimitivesTab import PrimitivesTab
 
@@ -17,11 +18,13 @@ class MainWindow(QWidget):
         self.tabs = QTabWidget()
         self.primitivesTab = PrimitivesTab()
         self.filesTab = FilesTab()
+        self.colorsTab = ColorsTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
         self.tabs.addTab(self.primitivesTab, "1. Graphical Primitives")
         self.tabs.addTab(self.filesTab, "2. Files")
+        self.tabs.addTab(self.colorsTab, "3. Colors")
 
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
