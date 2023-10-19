@@ -2,7 +2,8 @@ import threading
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog, QMessageBox, QInputDialog
+from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog, QMessageBox, QInputDialog, \
+    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem
 
 from Files.PpmFile import PpmFile
 from Files.SyntaxException import SyntaxException
@@ -23,9 +24,14 @@ class FilesTab(QWidget):
 
         self.setLayout(self.lay)
 
-        self.label = QLabel()
-        self.lay.addWidget(self.label)
-        self.lay.setAlignment(self.label, Qt.AlignCenter)
+        self.view = self.view = QGraphicsView(self)
+        self.lay.addWidget(self.view)
+
+        self.scene = QGraphicsScene(self)
+        self.view.setScene(self.scene)
+
+        self.pixmap_item = QGraphicsPixmapItem()
+        self.scene.addItem(self.pixmap_item)
 
         self.saveFileButton = QPushButton("Save image file")
         self.saveFileButton.clicked.connect(self.saveBtnCommand)
@@ -79,7 +85,8 @@ class FilesTab(QWidget):
 
         image = self.__scaleImage(image)
         pixmap = QPixmap().fromImage(image)
-        self.label.setPixmap(pixmap)
+
+        self.pixmap_item.setPixmap(pixmap)
 
     def __scaleImage(self, image):
         if image.width() >= image.height():

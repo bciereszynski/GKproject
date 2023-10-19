@@ -1,6 +1,5 @@
 from PyQt5.QtGui import QImage, qRgb
 from PyQt5.QtWidgets import QFileDialog
-from timeit import default_timer as timer
 
 from Files.SyntaxException import SyntaxException
 
@@ -25,7 +24,6 @@ class PpmFile:
         self.image = None
 
     def load(self, fileName):
-        start = timer()
         with open(fileName, "rb") as file:
             currentLine = self.__readFileHeader(file)
             data = file.read()
@@ -43,9 +41,6 @@ class PpmFile:
             self.__readP6FileData(data)
         else:
             raise SyntaxException("Unknown format")
-
-        end = timer()
-        print(end - start)
 
         return self.image
 
