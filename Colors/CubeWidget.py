@@ -11,9 +11,9 @@ from OpenGL.arrays import vbo
 import numpy as np
 
 
-class ColorsTab(QWidget):
+class CubeWidget(QWidget):
     def __init__(self, parent=None):
-        super(ColorsTab, self).__init__(parent)
+        super(CubeWidget, self).__init__(parent)
         self.glWidget = GLWidget(self)
         self.initGUI()
 

@@ -1,7 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 
-from Colors.ColorsTab import ColorsTab
+from Colors.ColorTab import ColorTab
 from Files.FilesTab import FilesTab
 from Primitives.PrimitivesTab import PrimitivesTab
 
@@ -18,7 +18,7 @@ class MainWindow(QWidget):
         self.tabs = QTabWidget()
         self.primitivesTab = PrimitivesTab()
         self.filesTab = FilesTab()
-        self.colorsTab = ColorsTab()
+        self.colorsTab = ColorTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
