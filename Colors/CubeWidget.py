@@ -5,7 +5,7 @@ import OpenGL.GL as gl
 from OpenGL import GLU
 from PyQt5.QtCore import Qt
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSlider
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
 
 from OpenGL.arrays import vbo
 import numpy as np
@@ -16,6 +16,10 @@ class CubeWidget(QWidget):
         super(CubeWidget, self).__init__(parent)
         self.glWidget = GLWidget(self)
         self.initGUI()
+
+        self.setFixedSize(300, 300)
+
+        self.isUp = False
 
         timer = QtCore.QTimer(self)
         timer.setInterval(20)  # period, in milliseconds
@@ -29,34 +33,45 @@ class CubeWidget(QWidget):
 
         gui_layout.addWidget(self.glWidget)
 
-        sliderX = QSlider(Qt.Horizontal)
-        sliderX.valueChanged.connect(lambda val: self.glWidget.setRotX(val))
+        buttonUp = QPushButton("Up/Down")
+        buttonUp.clicked.connect(self.rotateUp)
+        gui_layout.addWidget(buttonUp)
 
-        sliderY = QSlider(QtCore.Qt.Horizontal)
-        sliderY.valueChanged.connect(lambda val: self.glWidget.setRotY(val))
+        buttonRight = QPushButton("Rotate")
+        buttonRight.clicked.connect(self.rotateRight)
+        gui_layout.addWidget(buttonRight)
 
-        sliderZ = QSlider(QtCore.Qt.Horizontal)
-        sliderZ.valueChanged.connect(lambda val: self.glWidget.setRotZ(val))
+    def rotateUp(self):
+        newRot = (self.glWidget.rotX + 180) % 360
+        self.glWidget.rotX = newRot
+        if self.isUp:
+            self.isUp = False
+            newRot = (self.glWidget.rotY - 30) % 360
+        else:
+            self.isUp = True
+            newRot = (self.glWidget.rotY + 30) % 360
+        self.glWidget.rotY = newRot
 
-        gui_layout.addWidget(sliderX)
-        gui_layout.addWidget(sliderY)
-        gui_layout.addWidget(sliderZ)
 
+
+    def rotateRight(self):
+        newRot = (self.glWidget.rotY + 90) % 360
+        self.glWidget.rotY = newRot
 
 class GLWidget(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
         self.parent = parent
         QtOpenGL.QGLWidget.__init__(self, parent)
 
+        self.rotX = 30.0
+        self.rotY = 30.0
+        self.rotZ = 0.0
+
     def initializeGL(self):
         self.qglClearColor(QtGui.QColor(0, 0, 0))  # initialize the screen to blue
         gl.glEnable(gl.GL_DEPTH_TEST)  # enable depth testing
 
         self.initGeometry()
-
-        self.rotX = 0.0
-        self.rotY = 0.0
-        self.rotZ = 0.0
 
     def resizeGL(self, width, height):
         gl.glViewport(0, 0, width, height)
