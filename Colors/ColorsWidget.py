@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QSlider
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
 
 from Colors.TextSlider import TextSlider
 
@@ -39,7 +39,8 @@ class ColorsWidget(QWidget):
 
         self.updateCMYK()
 
-    def __createSlider(self, lay, name, command):
+    @staticmethod
+    def __createSlider(lay, name, command):
         slider = TextSlider(name)
         slider.setMinimum(0)
         slider.setMaximum(255)

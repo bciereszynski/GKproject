@@ -1,7 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QHBoxLayout
 
 from Colors.ColorsWidget import ColorsWidget
-from Colors.CubeWidget import CubeWidget
 
 
 class ColorTab(QWidget):
@@ -12,11 +11,8 @@ class ColorTab(QWidget):
         self.lay = QHBoxLayout()
         self.setLayout(self.lay)
 
-        self.cubeWidget = CubeWidget()
-        self.lay.addWidget(self.cubeWidget)
+        # self.cubeWidget = CubeWidget()
+        # self.lay.addWidget(self.cubeWidget)
 
         self.colorsWidget = ColorsWidget()
         self.lay.addWidget(self.colorsWidget)
-
-
-

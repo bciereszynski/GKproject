@@ -1,9 +1,8 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5 import QtOpenGL
 
-import OpenGL.GL as gl
+import OpenGL.GL as GL
 from OpenGL import GLU
-from PyQt5.QtCore import Qt
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
 
@@ -52,11 +51,10 @@ class CubeWidget(QWidget):
             newRot = (self.glWidget.rotY + 30) % 360
         self.glWidget.rotY = newRot
 
-
-
     def rotateRight(self):
         newRot = (self.glWidget.rotY + 90) % 360
         self.glWidget.rotY = newRot
+
 
 class GLWidget(QtOpenGL.QGLWidget):
     def __init__(self, parent=None):
@@ -69,43 +67,43 @@ class GLWidget(QtOpenGL.QGLWidget):
 
     def initializeGL(self):
         self.qglClearColor(QtGui.QColor(0, 0, 0))  # initialize the screen to blue
-        gl.glEnable(gl.GL_DEPTH_TEST)  # enable depth testing
+        GL.glEnable(GL.GL_DEPTH_TEST)  # enable depth testing
 
         self.initGeometry()
 
     def resizeGL(self, width, height):
-        gl.glViewport(0, 0, width, height)
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glLoadIdentity()
+        GL.glViewport(0, 0, width, height)
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
         aspect = width / float(height)
 
         GLU.gluPerspective(45.0, aspect, 1.0, 100.0)
-        gl.glMatrixMode(gl.GL_MODELVIEW)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def paintGL(self):
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-        gl.glPushMatrix()
+        GL.glPushMatrix()
 
-        gl.glTranslate(0.0, 0.0, -25.0)
-        gl.glScale(10.0, 10.0, 10.0)
-        gl.glRotate(self.rotX, 1.0, 0.0, 0.0)
-        gl.glRotate(self.rotY, 0.0, 1.0, 0.0)
-        gl.glRotate(self.rotZ, 0.0, 0.0, 1.0)
-        gl.glTranslate(-0.5, -0.5, -0.5)
+        GL.glTranslate(0.0, 0.0, -25.0)
+        GL.glScale(10.0, 10.0, 10.0)
+        GL.glRotate(self.rotX, 1.0, 0.0, 0.0)
+        GL.glRotate(self.rotY, 0.0, 1.0, 0.0)
+        GL.glRotate(self.rotZ, 0.0, 0.0, 1.0)
+        GL.glTranslate(-0.5, -0.5, -0.5)
 
-        gl.glEnableClientState(gl.GL_VERTEX_ARRAY)
-        gl.glEnableClientState(gl.GL_COLOR_ARRAY)
+        GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
+        GL.glEnableClientState(GL.GL_COLOR_ARRAY)
 
-        gl.glVertexPointer(3, gl.GL_FLOAT, 0, self.vertVBO)
-        gl.glColorPointer(3, gl.GL_FLOAT, 0, self.colorVBO)
+        GL.glVertexPointer(3, GL.GL_FLOAT, 0, self.vertVBO)
+        GL.glColorPointer(3, GL.GL_FLOAT, 0, self.colorVBO)
 
-        gl.glDrawElements(gl.GL_QUADS, len(self.cubeIdxArray), gl.GL_UNSIGNED_INT, self.cubeIdxArray)
+        GL.glDrawElements(GL.GL_QUADS, len(self.cubeIdxArray), GL.GL_UNSIGNED_INT, self.cubeIdxArray)
 
-        gl.glDisableClientState(gl.GL_VERTEX_ARRAY)
-        gl.glDisableClientState(gl.GL_COLOR_ARRAY)
+        GL.glDisableClientState(GL.GL_VERTEX_ARRAY)
+        GL.glDisableClientState(GL.GL_COLOR_ARRAY)
 
-        gl.glPopMatrix()
+        GL.glPopMatrix()
 
     def initGeometry(self):
         self.cubeVtxArray = np.array(
