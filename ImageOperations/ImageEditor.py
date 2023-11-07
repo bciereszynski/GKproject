@@ -257,9 +257,9 @@ class ImageEditor(QWidget):
 
         if count == 0:
             count = 1
-        reach = mask_size - mask_size//2
-        for x in range(mask_size//2, image.width()-mask_size//2):
-            for y in range(mask_size//2, image.height()-mask_size//2):
+        reach = mask_size // 2
+        for x in range(reach, image.width() - reach):
+            for y in range(reach, image.height() - reach):
                 r = 0
                 g = 0
                 b = 0
@@ -270,9 +270,9 @@ class ImageEditor(QWidget):
                         g = g + qGreen(oldRgb) * mask[i][j]
                         b = b + qBlue(oldRgb) * mask[i][j]
                 rgb = self.currentImage.pixel(x, y)
-                r = qRed(rgb) if not channels[0] else self.__limitPixel(r/count)
-                g = qGreen(rgb) if not channels[1] else self.__limitPixel(g/count)
-                b = qBlue(rgb) if not channels[2] else self.__limitPixel(b/count)
+                r = qRed(rgb) if not channels[0] else self.__limitPixel(r / count)
+                g = qGreen(rgb) if not channels[1] else self.__limitPixel(g / count)
+                b = qBlue(rgb) if not channels[2] else self.__limitPixel(b / count)
                 newRgb = qRgb(r, g, b)
                 image.setPixel(x, y, newRgb)
         self.updateImage(image)
