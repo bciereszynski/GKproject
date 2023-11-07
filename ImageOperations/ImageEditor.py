@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage, qBlue, qRed, qRgb, qGreen
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QSpinBox, QLabel, \
-    QHBoxLayout, QPushButton, QSlider, QFileDialog, QInputDialog
+    QHBoxLayout, QPushButton, QSlider, QFileDialog, QInputDialog, QPlainTextEdit
 
 
 class ImageEditor(QWidget):
@@ -48,7 +48,24 @@ class ImageEditor(QWidget):
         self.controlsLay.addWidget(self.slider)
         self.__createControlButton("Change image brightness", self.changeBrightness)
 
+        self.maskEdit = QPlainTextEdit()
+        self.maskEdit.setFixedSize(61, 100)
+        self.maskEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.controlsLay.addWidget(self.maskEdit)
+
+        self.applyMaskBtn = QPushButton("Apply mask")
+        self.applyMaskBtn.clicked.connect(self.applyMask)
+        self.controlsLay.addWidget(self.applyMaskBtn)
+
         self.lay.addLayout(self.controlsLay)
+
+    def mouseMoveEvent(self, e):
+        super()
+        p = self.maskEdit.mapFromParent(e.pos())
+        if p.x() > 60:
+            self.maskEdit.setFixedWidth(p.x())
+        if p.y() > 100:
+            self.maskEdit.setFixedHeight(p.y())
 
     def __createControlButton(self, name, action):
         btn = QPushButton(name)
@@ -78,6 +95,14 @@ class ImageEditor(QWidget):
     def changeBrightness(self):
         pass
 
+    def applyMask(self):
+        try:
+            mask = self.__parseMask()
+        except Exception as ex:
+            print(str(ex))
+            return
+        self.__maskImage(mask)
+
     def setImage(self, image):
         self.originalImage = image
         self.updateImage(image)
@@ -91,10 +116,11 @@ class ImageEditor(QWidget):
         for x in range(image.width()):
             for y in range(image.height()):
                 rgb = image.pixel(x, y)
-                newRgb = qRgb(operation(qRed(rgb), value), operation(qGreen(rgb), value), operation(qBlue(rgb), value))
-                image.setPixel(x,y,newRgb)
+                newRgb = qRgb(self.__limitPixel(operation(qRed(rgb), value)),
+                              self.__limitPixel(operation(qGreen(rgb), value)),
+                              self.__limitPixel(operation(qBlue(rgb), value)))
+                image.setPixel(x, y, newRgb)
         self.updateImage(image)
-
 
     def saveBtnCommand(self):
         try:
@@ -111,3 +137,55 @@ class ImageEditor(QWidget):
             return
 
         image.save(fileName[0], "jpeg", 100 - value)
+
+    def __maskImage(self, mask: list[list]):
+        image = QImage(self.originalImage)
+        mask_size = len(mask)
+        count = 0
+        for row in mask:
+            for item in row:
+                count = count + item
+
+        if count == 0:
+            count = 1
+        reach = mask_size - mask_size//2
+        for x in range(mask_size//2, image.width()-mask_size//2):
+            for y in range(mask_size//2, image.height()-mask_size//2):
+                r = 0
+                g = 0
+                b = 0
+                for i in range(mask_size):
+                    for j in range(mask_size):
+                        oldRgb = self.originalImage.pixel(x + i - reach, y + j - reach)
+                        r = r + qRed(oldRgb) * mask[i][j]
+                        g = g + qGreen(oldRgb) * mask[i][j]
+                        b = b + qBlue(oldRgb) * mask[i][j]
+                r = self.__limitPixel(r/count)
+                g = self.__limitPixel(g/count)
+                b = self.__limitPixel(b/count)
+                newRgb = qRgb(r, g, b)
+                image.setPixel(x, y, newRgb)
+        self.updateImage(image)
+
+    @staticmethod
+    def __limitPixel(value):
+        return max(min(int(value), 255), 0)
+
+    def __parseMask(self):
+        lines = self.maskEdit.toPlainText().splitlines()
+        mask = []
+        mask_size = len(lines)
+        if mask_size % 2 != 1:
+            raise Exception("Mask size must be odd")
+        for line in lines:
+            mask_line = []
+            for item in line.split():
+                try:
+                    int(item)
+                except ValueError:
+                    raise Exception("Not numeric item occurred")
+                mask_line.append(int(item))
+            if mask_size != len(mask_line):
+                raise Exception("Mask not fully filled")
+            mask.append(mask_line)
+        return mask
