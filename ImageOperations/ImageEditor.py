@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QImage, qBlue, qRed, qRgb, qGreen
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QSpinBox, QLabel, \
-    QHBoxLayout, QPushButton, QSlider, QFileDialog, QInputDialog, QPlainTextEdit
+    QHBoxLayout, QPushButton, QFileDialog, QInputDialog, QPlainTextEdit, QCheckBox
 
 
 class ImageEditor(QWidget):
@@ -10,6 +10,7 @@ class ImageEditor(QWidget):
         self.lay = QHBoxLayout()
         self.setLayout(self.lay)
 
+        self.currentImage = None
         self.originalImage = None
 
         self.imageLayout = QVBoxLayout()
@@ -22,13 +23,30 @@ class ImageEditor(QWidget):
         self.saveFileButton = QPushButton("Save image file")
         self.saveFileButton.clicked.connect(self.saveBtnCommand)
         self.lay.setAlignment(self.saveFileButton, Qt.AlignTop)
+
+        self.resetBtn = QPushButton("Reset")
+        self.resetBtn.clicked.connect(self.reset)
+
         self.imageLayout.addWidget(self.saveFileButton)
         self.imageLayout.addWidget(self.view)
+        self.imageLayout.addWidget(self.resetBtn)
 
-        self.lay.addLayout(self.imageLayout)
+        self.lay.addLayout(self.imageLayout, stretch=3)
 
         self.controlsLay = QVBoxLayout()
         self.controlsLay.setAlignment(Qt.AlignTop)
+
+        self.__createControlButton("Grayscale - average", self.toGrayscaleAvg)
+        self.__createControlButton("Grayscale - linear", self.toGrayscaleLinear)
+
+        self.comboLay = QHBoxLayout()
+
+        self.redCheckCombo, redCheckLabel = self.__createControlCheck("Red")
+        self.greenCheckCombo, greenCheckLabel = self.__createControlCheck("Green")
+        self.blueCheckCombo, blueCheckLabel = self.__createControlCheck("Blue")
+
+        self.controlsLay.addLayout(self.comboLay)
+        self.controlsLay.setAlignment(self.comboLay, Qt.AlignTop)
 
         self.spin = QSpinBox()
         self.spin.setMaximum(255)
@@ -41,13 +59,6 @@ class ImageEditor(QWidget):
 
         self.controlsLay.addSpacing(20)
 
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setMaximum(100)
-        self.slider.setMinimum(0)
-        self.slider.setTickPosition(QSlider.TicksBelow)
-        self.controlsLay.addWidget(self.slider)
-        self.__createControlButton("Change image brightness", self.changeBrightness)
-
         self.maskEdit = QPlainTextEdit()
         self.maskEdit.setFixedSize(61, 100)
         self.maskEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
@@ -57,7 +68,7 @@ class ImageEditor(QWidget):
         self.applyMaskBtn.clicked.connect(self.applyMask)
         self.controlsLay.addWidget(self.applyMaskBtn)
 
-        self.lay.addLayout(self.controlsLay)
+        self.lay.addLayout(self.controlsLay, stretch=1)
 
     def mouseMoveEvent(self, e):
         super()
@@ -73,27 +84,63 @@ class ImageEditor(QWidget):
         self.controlsLay.addWidget(btn)
         return btn
 
+    def __createControlCheck(self, name):
+        check = QCheckBox()
+        label = QLabel(name)
+        lay = QHBoxLayout()
+        lay.addWidget(check)
+        lay.addWidget(label)
+        self.comboLay.addLayout(lay)
+        return check, label
+
+    def toGrayscaleLinear(self):
+        image = QImage(self.originalImage)
+        for x in range(image.width()):
+            for y in range(image.height()):
+                rgb = image.pixel(x, y)
+                r = qRed(rgb)
+                g = qGreen(rgb)
+                b = qBlue(rgb)
+                gray = int(0.2989 * r + 0.5870 * g + 0.1140 * b)
+                rgb = qRgb(gray, gray, gray)
+                image.setPixel(x, y, rgb)
+        self.updateImage(image)
+
+    def toGrayscaleAvg(self):
+        image = QImage(self.originalImage)
+        for x in range(image.width()):
+            for y in range(image.height()):
+                rgb = image.pixel(x, y)
+                r = qRed(rgb)
+                g = qGreen(rgb)
+                b = qBlue(rgb)
+                gray = (r + g + b) // 3
+                rgb = qRgb(gray, gray, gray)
+                image.setPixel(x, y, rgb)
+        self.updateImage(image)
+
     def add(self):
         value = self.spin.value()
-        self.modifyPixels(lambda x, y: x + y, value)
+        self.modifyPixels(lambda x, y: x + y, value,
+                         [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
 
     def subtract(self):
         value = self.spin.value()
-        self.modifyPixels(lambda x, y: x - y, value)
+        self.modifyPixels(lambda x, y: x - y, value,
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
 
     def multiply(self):
         value = self.spin.value()
-        self.modifyPixels(lambda x, y: x * y, value)
+        self.modifyPixels(lambda x, y: x * y, value,
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
 
     def divide(self):
         value = self.spin.value()
         if value == 0:
             print("error")
             return
-        self.modifyPixels(lambda x, y: int(x / y), value)
-
-    def changeBrightness(self):
-        pass
+        self.modifyPixels(lambda x, y: int(x / y), value,
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
 
     def applyMask(self):
         try:
@@ -101,7 +148,8 @@ class ImageEditor(QWidget):
         except Exception as ex:
             print(str(ex))
             return
-        self.__maskImage(mask)
+        self.__maskImage(mask,
+                         [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
 
     def setImage(self, image):
         self.originalImage = image
@@ -110,15 +158,20 @@ class ImageEditor(QWidget):
     def updateImage(self, image):
         pixmap = QPixmap().fromImage(image)
         self.pixmap_item.setPixmap(pixmap)
+        self.currentImage = image
 
-    def modifyPixels(self, operation, value):
-        image = QImage(self.originalImage)
+    def reset(self):
+        self.updateImage(self.originalImage)
+
+    def modifyPixels(self, operation, value, channels):
+        image = QImage(self.currentImage)
         for x in range(image.width()):
             for y in range(image.height()):
                 rgb = image.pixel(x, y)
-                newRgb = qRgb(self.__limitPixel(operation(qRed(rgb), value)),
-                              self.__limitPixel(operation(qGreen(rgb), value)),
-                              self.__limitPixel(operation(qBlue(rgb), value)))
+                r = qRed(rgb) if not channels[0] else self.__limitPixel(operation(qRed(rgb), value))
+                g = qGreen(rgb) if not channels[1] else self.__limitPixel(operation(qGreen(rgb), value))
+                b = qBlue(rgb) if not channels[2] else self.__limitPixel(operation(qBlue(rgb), value))
+                newRgb = qRgb(r, g, b)
                 image.setPixel(x, y, newRgb)
         self.updateImage(image)
 
@@ -128,7 +181,8 @@ class ImageEditor(QWidget):
         except Exception:
             return
 
-        (value, ok) = QInputDialog().getInt(self, "Kompresja", "Stopień kompresji:", 0, 0, 100)
+        (value, ok) = QInputDialog().getInt(self, "Kompresja",
+                                            "Stopień kompresji:", 0, 0, 100)
         if not ok:
             return
 
@@ -138,8 +192,8 @@ class ImageEditor(QWidget):
 
         image.save(fileName[0], "jpeg", 100 - value)
 
-    def __maskImage(self, mask: list[list]):
-        image = QImage(self.originalImage)
+    def __maskImage(self, mask: list[list], channels):
+        image = QImage(self.currentImage)
         mask_size = len(mask)
         count = 0
         for row in mask:
@@ -156,13 +210,14 @@ class ImageEditor(QWidget):
                 b = 0
                 for i in range(mask_size):
                     for j in range(mask_size):
-                        oldRgb = self.originalImage.pixel(x + i - reach, y + j - reach)
+                        oldRgb = self.currentImage.pixel(x + i - reach, y + j - reach)
                         r = r + qRed(oldRgb) * mask[i][j]
                         g = g + qGreen(oldRgb) * mask[i][j]
                         b = b + qBlue(oldRgb) * mask[i][j]
-                r = self.__limitPixel(r/count)
-                g = self.__limitPixel(g/count)
-                b = self.__limitPixel(b/count)
+                rgb = self.currentImage.pixel(x, y)
+                r = qRed(rgb) if not channels[0] else self.__limitPixel(r/count)
+                g = qGreen(rgb) if not channels[1] else self.__limitPixel(g/count)
+                b = qBlue(rgb) if not channels[2] else self.__limitPixel(b/count)
                 newRgb = qRgb(r, g, b)
                 image.setPixel(x, y, newRgb)
         self.updateImage(image)
