@@ -144,17 +144,20 @@ class ImageEditor(QWidget):
     def add(self):
         value = self.spin.value()
         self.modifyPixels(lambda x, y: x + y, value,
-                         [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(),
+                           self.blueCheckCombo.isChecked()])
 
     def subtract(self):
         value = self.spin.value()
         self.modifyPixels(lambda x, y: x - y, value,
-                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(),
+                           self.blueCheckCombo.isChecked()])
 
     def multiply(self):
         value = self.spin.value()
         self.modifyPixels(lambda x, y: x * y, value,
-                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(),
+                           self.blueCheckCombo.isChecked()])
 
     def divide(self):
         value = self.spin.value()
@@ -162,7 +165,8 @@ class ImageEditor(QWidget):
             print("error")
             return
         self.modifyPixels(lambda x, y: int(x / y), value,
-                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
+                          [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(),
+                           self.blueCheckCombo.isChecked()])
 
     def applyMask(self):
         try:
@@ -171,7 +175,8 @@ class ImageEditor(QWidget):
             print(str(ex))
             return
         self.__maskImage(mask,
-                         [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(), self.blueCheckCombo.isChecked()])
+                         [self.redCheckCombo.isChecked(), self.greenCheckCombo.isChecked(),
+                          self.blueCheckCombo.isChecked()])
 
     def setImage(self, image):
         self.originalImage = image
