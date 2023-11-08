@@ -108,6 +108,7 @@ class ImageEditor(QWidget):
 
     def __createControlCheck(self, name):
         check = QCheckBox()
+        check.setChecked(True)
         label = QLabel(name)
         lay = QHBoxLayout()
         lay.addWidget(check)
