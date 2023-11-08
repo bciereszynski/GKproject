@@ -19,7 +19,7 @@ class FilesLoader(QWidget):
         self.lay = QVBoxLayout()
 
         self.loadFileButton = QPushButton("Load image file")
-        self.loadFileButton.clicked.connect(self.loadBtnCommand)
+        self.loadFileButton.clicked.connect(self.loadFile)
         self.lay.setAlignment(self.loadFileButton, Qt.AlignTop)
         self.lay.addWidget(self.loadFileButton)
 
@@ -35,10 +35,6 @@ class FilesLoader(QWidget):
         self.scene.addItem(self.pixmap_item)
 
         self.exceptSignal.connect(self.__showExceptionMessage)
-
-    def loadBtnCommand(self):
-        thread = threading.Thread(target=self.loadFile, args=())
-        thread.start()
 
     def loadFile(self):
         fileName = QFileDialog.getOpenFileName(self)
