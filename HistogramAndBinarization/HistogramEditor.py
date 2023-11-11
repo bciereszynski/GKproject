@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QImage, qRed, qRgb
-import matplotlib.pyplot as plt
 from PyQt5.QtWidgets import QInputDialog
 
+from HistogramAndBinarization.PlotDialog import PlotDialog
 from ImageOperations.ImageEditor import ImageEditor
 
 
@@ -10,6 +10,10 @@ class HistogramEditor(ImageEditor):
         super().__init__(parent)
         self.createControlButton("Stretch", self.stretch)
         self.createControlButton("Equalize", self.equalize)
+
+        self.controlsLay.addSpacing(20)
+
+        self.createControlButton("Show histogram", self.plotHistogram)
 
         self.controlsLay.addSpacing(20)
         self.createControlButton("Binarize with value", self.binarizeWithValue)
@@ -24,12 +28,14 @@ class HistogramEditor(ImageEditor):
                 histogram[value] += 1
         return histogram
 
-    def plotHistogram(self, histogram):
+    def plotHistogram(self):
+        histogram = self.createHistogram()
         x = [i for i in range(256)]
-        plt.plot(x, histogram)
-        plt.show()
+        dialog = PlotDialog(x, histogram)
+        dialog.exec()
 
     def equalize(self):
+        self.toGrayscaleLinear()
         image = QImage(self.currentImage)
         histogram = self.createHistogram()
         total = sum(histogram)
@@ -50,14 +56,7 @@ class HistogramEditor(ImageEditor):
     def stretch(self):
         self.toGrayscaleLinear()
         image = QImage(self.currentImage)
-        valueMin = 255
-        valueMax = 0
-        for x in range(image.width()):
-            for y in range(image.height()):
-                # after convertion to grayscale: r == g == b
-                value = qRed(image.pixel(x, y))
-                valueMin = min(value, valueMin)
-                valueMax = max(value, valueMax)
+        valueMin, valueMax = self.getMinMaxValues(image)
 
         valueDiff = valueMax - valueMin
         for x in range(image.width()):
@@ -68,12 +67,14 @@ class HistogramEditor(ImageEditor):
         self.updateImage(image)
 
     def binarizeWithValue(self):
+        self.toGrayscaleLinear()
         (value, ok) = QInputDialog().getInt(self, "Threshold", "Threshold value:", 100, 0, 255)
         if not ok:
             return
-        self.binarize(value)
+        self.__binarize(value)
 
     def binarizeWithPercent(self):
+        self.toGrayscaleLinear()
         (percent, ok) = QInputDialog().getInt(self, "Threshold", "Threshold percent:", 50, 0, 100)
         if not ok:
             return
@@ -87,7 +88,12 @@ class HistogramEditor(ImageEditor):
             threshold += 1
             accum += histogram[threshold]
 
-        self.binarize(threshold)
+        self.__binarize(threshold)
+
+    def binarizeMeanIterative(self):
+        self.toGrayscaleLinear()
+        deltaT = 0.1
+        histogram = self.createHistogram()
 
     def binarize(self, threshold):
         self.toGrayscaleLinear()
@@ -103,3 +109,15 @@ class HistogramEditor(ImageEditor):
                 newValue = LUT[value]
                 image.setPixel(x, y, qRgb(newValue, newValue, newValue))
         self.updateImage(image)
+
+    @staticmethod
+    def getMinMaxValues(image):
+        valueMin = 255
+        valueMax = 0
+        for x in range(image.width()):
+            for y in range(image.height()):
+                # after convertion to grayscale: r == g == b
+                value = qRed(image.pixel(x, y))
+                valueMin = min(value, valueMin)
+                valueMax = max(value, valueMax)
+        return valueMin, valueMax
