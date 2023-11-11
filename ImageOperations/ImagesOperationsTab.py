@@ -1,14 +1,7 @@
-import threading
-
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QLabel, QFileDialog, QMessageBox, QInputDialog, \
-    QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QHBoxLayout
 
 from Files.FilesLoader import FilesLoader
-from Files.PpmFile import PpmFile
-from Files.SyntaxException import SyntaxException
-from ImageOperations.ImageEditor import ImageEditor
+from ImageOperations.PixelEditor import PixelEditor
 
 
 class ImagesOperationsTab(QWidget):
@@ -21,6 +14,6 @@ class ImagesOperationsTab(QWidget):
         self.filesTab = FilesLoader()
         self.lay.addWidget(self.filesTab, stretch=1)
 
-        self.editor = ImageEditor()
+        self.editor = PixelEditor()
         self.filesTab.imageLoaded.connect(self.editor.setImage)
         self.lay.addWidget(self.editor, stretch=2)
