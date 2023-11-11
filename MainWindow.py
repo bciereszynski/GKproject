@@ -2,8 +2,8 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 
 from Colors.ColorTab import ColorTab
-from Files.FilesLoader import FilesLoader
 from Files.FilesTab import FilesTab
+from HistogramAndBinarization.HistogramAndBinarizationTab import HistogramAndBinarizationTab
 from ImageOperations.ImagesOperationsTab import ImagesOperationsTab
 from Primitives.PrimitivesTab import PrimitivesTab
 
@@ -22,6 +22,7 @@ class MainWindow(QWidget):
         self.filesTab = FilesTab()
         self.colorsTab = ColorTab()
         self.imagesOperationsTab = ImagesOperationsTab()
+        self.histogramAndBinarizationTab = HistogramAndBinarizationTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
@@ -29,6 +30,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.filesTab, "2. Files")
         self.tabs.addTab(self.colorsTab, "3. Colors")
         self.tabs.addTab(self.imagesOperationsTab, "4. Images operations")
+        self.tabs.addTab(self.histogramAndBinarizationTab, "5. Histogram and binarization")
 
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
