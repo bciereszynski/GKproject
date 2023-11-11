@@ -18,6 +18,7 @@ class HistogramEditor(ImageEditor):
         self.controlsLay.addSpacing(20)
         self.createControlButton("Binarize with value", self.binarizeWithValue)
         self.createControlButton("Binarize with percent", self.binarizeWithPercent)
+        self.createControlButton("Binarize mean iterative selection", self.binarizeMeanIterative)
 
     def createHistogram(self):
         histogram = [0] * 256
@@ -95,7 +96,36 @@ class HistogramEditor(ImageEditor):
         deltaT = 0.1
         histogram = self.createHistogram()
 
-    def binarize(self, threshold):
+        image = QImage(self.currentImage)
+        valueMin, valueMax = self.getMinMaxValues(image)
+        threshold = int((valueMin + valueMax) / 2)
+
+        while True:
+            sumNumeral = 0
+            sumDenominator = 0
+            for i in range(threshold):
+                sumNumeral += i * histogram[i]
+                sumDenominator += histogram[i]
+
+            belowThreshold = sumNumeral / sumDenominator
+
+            sumNumeral = 0
+            sumDenominator = 0
+            for j in range(threshold, 256):
+                sumNumeral += j * histogram[j]
+                sumDenominator += histogram[j]
+
+            aboveThreshold = sumNumeral / sumDenominator
+
+            oldThreshold = threshold
+            threshold = int((belowThreshold + aboveThreshold) / 2)
+
+            if abs(threshold - oldThreshold) < deltaT:
+                break
+
+        self.__binarize(threshold)
+
+    def __binarize(self, threshold):
         self.toGrayscaleLinear()
         image = QImage(self.currentImage)
 
