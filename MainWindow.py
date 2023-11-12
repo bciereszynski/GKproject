@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 
+from BézierCurve.CurveTab import CurveTab
 from Colors.ColorTab import ColorTab
 from Files.FilesTab import FilesTab
 from HistogramAndBinarization.HistogramAndBinarizationTab import HistogramAndBinarizationTab
@@ -23,6 +24,7 @@ class MainWindow(QWidget):
         self.colorsTab = ColorTab()
         self.imagesOperationsTab = ImagesOperationsTab()
         self.histogramAndBinarizationTab = HistogramAndBinarizationTab()
+        self.curveTab = CurveTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
@@ -31,6 +33,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.colorsTab, "3. Colors")
         self.tabs.addTab(self.imagesOperationsTab, "4. Images operations")
         self.tabs.addTab(self.histogramAndBinarizationTab, "5. Histogram and binarization")
+        self.tabs.addTab(self.curveTab, "6. Beizer curves")
 
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
@@ -38,3 +41,5 @@ class MainWindow(QWidget):
         self.authorLabel = QLabel("Author: Bartosz Piotr Ciereszyński")
         self.authorLabel.setAlignment(QtCore.Qt.AlignRight)
         self.layout.addWidget(self.authorLabel)
+
+        self.tabs.setCurrentIndex(5)
