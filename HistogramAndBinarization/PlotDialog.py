@@ -11,8 +11,7 @@ class PlotDialog(QDialog):
 
         set = QBarSet("")
         for i in range(len(x)):
-            if y[i] != 0:
-                set.append(y[i])
+            set.append(y[i])
 
         series = QBarSeries()
         series.append(set)
@@ -27,11 +26,14 @@ class PlotDialog(QDialog):
 
         view = QChartView()
 
-        chart = view.chart()
-        chart.addSeries(series)
-        chart.addAxis(x_axis, QtCore.Qt.AlignmentFlag.AlignBottom)
-        chart.addAxis(y_axis, QtCore.Qt.AlignmentFlag.AlignLeft)
-        chart.legend().markers(series)[0].setVisible(False)
+        self.chart = view.chart()
+        self.chart.addSeries(series)
+        self.chart.addAxis(x_axis, QtCore.Qt.AlignmentFlag.AlignBottom)
+        self.chart.addAxis(y_axis, QtCore.Qt.AlignmentFlag.AlignLeft)
+        self.chart.legend().setVisible(False)
+
+        series.attachAxis(x_axis)
+        series.attachAxis(y_axis)
 
         self.lay = QVBoxLayout()
         self.lay.addWidget(view)

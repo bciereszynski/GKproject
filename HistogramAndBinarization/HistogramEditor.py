@@ -33,6 +33,7 @@ class HistogramEditor(ImageEditor):
         histogram = self.createHistogram()
         x = [i for i in range(256)]
         dialog = PlotDialog(x, histogram)
+        dialog.setWindowTitle("Histogram")
         dialog.exec()
 
     def equalize(self):
