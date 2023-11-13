@@ -8,27 +8,33 @@ class Curve:
         self.level = level
         self.points = []
         self.curvePoints = None
-        self.step = 0.05
+        self.step = 0.001
 
-        self.__selectedPoint = None
+    def update(self):
+        self.__calculateCurve()
 
     def addPoint(self, point):
         self.points.append(point)
-        self.curvePoints = None
+        point.setParent(self)
 
-    def editPoint(self, point, index):
-        self.points[index] = point
-        self.curvePoints = None
+    def isComplete(self):
+        return self.level == len(self.points)
 
-    def deletePoint(self, point):
-        self.points.remove(point)
-        self.curvePoints = None
+    def contains(self, position):
+        for p in self.points:
+            if p.contains(position):
+                return True
+        return False
+
+    def detectPoint(self, position):
+        for p in self.points:
+            if p.contains(position):
+                return p
+        return None
 
     def render(self, painter):
         for p in self.points:
-            if self.__selectedPoint is not None and p == self.__selectedPoint:
-                p.render(painter, True)
-            p.render(painter, False)
+            p.render(painter)
         if len(self.points) < 2:
             return
 
@@ -56,20 +62,3 @@ class Curve:
                 points = newPoints
             self.curvePoints.append((int(points[0][0]), int(points[0][1])))
         self.curvePoints.append((self.points[-1].x, self.points[-1].y))
-
-    def setSelected(self, selected, point=None):
-        if point is not None:
-            if selected:
-                self.__selectedPoint = point
-            else:
-                self.__selectedPoint = None
-
-    def isComplete(self):
-        return self.level == len(self.points)
-
-    def contains(self, position):
-        for p in self.points:
-            if p.contains(position):
-                return True, p
-
-        return False, None
