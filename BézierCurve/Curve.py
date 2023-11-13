@@ -7,7 +7,20 @@ class Curve:
             raise Exception("Bad level value: " + str(level))
         self.level = level
         self.points = []
+        self.curvePoints = None
         self.step = 0.05
+
+    def addPoint(self, point):
+        self.points.append(point)
+        self.curvePoints = None
+
+    def editPoint(self, point, index):
+        self.points[index] = point
+        self.curvePoints = None
+
+    def deletePoint(self, point):
+        self.points.remove(point)
+        self.curvePoints = None
 
     def render(self, painter):
         for p in self.points:
@@ -15,24 +28,30 @@ class Curve:
         if len(self.points) < 2:
             return
 
-        oldX = self.points[0].x
-        oldY = self.points[0].y
+        if self.curvePoints is None:
+            self.__calculateCurve()
 
+        for i in range(len(self.curvePoints)-1):
+            painter.drawLine(self.curvePoints[i][0], self.curvePoints[i][1],
+                             self.curvePoints[i+1][0], self.curvePoints[i+1][1])
+
+    def __calculateCurve(self):
+        def calculateSubPoint(point1, point2, t):
+            dx = point2[0] - point1[0]
+            dy = point2[1] - point1[1]
+            return point1[0] + dx * t, point1[1] + dy * t
+
+        self.curvePoints = [(self.points[0].x, self.points[0].y)]
         for part in np.arange(0, 1, self.step):
-            calculatePoints = [(p.x, p.y) for p in self.points]
-            while len(calculatePoints) > 1:
-                newCalculatePoints = []
-                for i in range(len(calculatePoints)-1):
-                    newCalculatePoints.append(self.calculateSubCoordinates(calculatePoints[i], calculatePoints[i+1], part))
-                calculatePoints = newCalculatePoints
-            x = int(calculatePoints[0][0])
-            y = int(calculatePoints[0][1])
-            painter.drawLine(x, y, oldX, oldY)
-            oldX = x
-            oldY = y
-
-        painter.drawLine(x, y, self.points[-1].x, self.points[-1].y)
-
+            points = [(p.x, p.y) for p in self.points]
+            while len(points) > 1:
+                newPoints = []
+                for i in range(len(points) - 1):
+                    newPoints.append(
+                        calculateSubPoint(points[i], points[i + 1], part))
+                points = newPoints
+            self.curvePoints.append((int(points[0][0]), int(points[0][1])))
+        self.curvePoints.append((self.points[-1].x, self.points[-1].y))
 
     def setSelected(self, selected):
         if selected:
@@ -41,14 +60,5 @@ class Curve:
         for p in self.points:
             p.setSelected(False)
 
-    def addPoint(self, point):
-        self.points.append(point)
-
     def isComplete(self):
         return self.level == len(self.points)
-
-    @staticmethod
-    def calculateSubCoordinates(point1, point2, t):
-        dx = point2[0] - point1[0]
-        dy = point2[1] - point1[1]
-        return point1[0] + dx * t, point1[1] + dy * t
