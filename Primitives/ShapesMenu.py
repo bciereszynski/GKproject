@@ -18,11 +18,11 @@ class ShapesMenu(Menu):
 
         self.lay.addSpacing(50)
 
-        self.point1WidthSpin = self.createSpinBox("Point A x:", 2000)
-        self.point1HeightSpin = self.createSpinBox("Point A y:", 1000)
+        self.point1WidthSpin, label = self.createSpinBox("Point A x:", 2000)
+        self.point1HeightSpin, label = self.createSpinBox("Point A y:", 1000)
 
-        self.point2WidthSpin = self.createSpinBox("Point B x:", 2000)
-        self.point2HeightSpin = self.createSpinBox("Point B y:", 1000)
+        self.point2WidthSpin, label = self.createSpinBox("Point B x:", 2000)
+        self.point2HeightSpin, label = self.createSpinBox("Point B y:", 1000)
 
         self.createBtn = self.createButton("Create", self.createShape)
         self.createBtn.setDefault(True)

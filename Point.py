@@ -6,7 +6,12 @@ class Point:
         self.x = x
         self.y = y
 
-    def render(self, painter, selected=False):
+        self.isSelected = False
+        self.parent = None
+
+    def render(self, painter, selected=None):
+        if selected is None:
+            selected = self.isSelected
         tempBrush = painter.brush()
         tempPen = painter.pen()
         if selected:
@@ -20,9 +25,29 @@ class Point:
         painter.setBrush(tempBrush)
         painter.setPen(tempPen)
 
+    def setX(self, value):
+        self.x = value
+        if self.parent is not None:
+            self.parent.update()
+
+    def setY(self, value):
+        self.y = value
+        if self.parent is not None:
+            self.parent.update()
+
+    def setParent(self, parent):
+        self.parent = parent
+        self.parent.update()
+
+    def setSelected(self, isSelected):
+        self.isSelected = isSelected
+
     def move(self, delta):
         self.x += delta.x()
         self.y += delta.y()
+
+        if self.parent is not None:
+            self.parent.update()
 
     def resize(self, delta):
         self.move(delta)
