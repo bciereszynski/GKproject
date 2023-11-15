@@ -1,5 +1,7 @@
 import numpy as np
 
+# http://zobaczycmatematyke.krk.pl/025-Zolkos-Krakow/bezier.html
+
 
 class Curve:
     def __init__(self, level):
@@ -8,7 +10,7 @@ class Curve:
         self.level = level
         self.points = []
         self.curvePoints = None
-        self.step = 0.001
+        self.step = 0.01
 
     def update(self):
         self.__calculateCurve()
