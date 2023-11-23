@@ -6,6 +6,7 @@ from Colors.ColorTab import ColorTab
 from Files.FilesTab import FilesTab
 from HistogramAndBinarization.HistogramAndBinarizationTab import HistogramAndBinarizationTab
 from ImageOperations.ImagesOperationsTab import ImagesOperationsTab
+from Morphology.MorphologyTab import MorphologyTab
 from Primitives.PrimitivesTab import PrimitivesTab
 
 
@@ -25,6 +26,7 @@ class MainWindow(QWidget):
         self.imagesOperationsTab = ImagesOperationsTab()
         self.histogramAndBinarizationTab = HistogramAndBinarizationTab()
         self.curveTab = CurveTab()
+        self.morphologyTab = MorphologyTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
@@ -34,6 +36,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.imagesOperationsTab, "4. Images operations")
         self.tabs.addTab(self.histogramAndBinarizationTab, "5. Histogram and binarization")
         self.tabs.addTab(self.curveTab, "6. Beizer curves")
+        self.tabs.addTab(self.morphologyTab, "8. Morphology")
 
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
