@@ -54,6 +54,12 @@ class FilesLoader(QWidget):
                 image.load(fileName[0], "jpeg")
             except:
                 self.exceptSignal.emit("Error occurred during file load - " + fileName[0])
+        elif fileName[0].find(".png") != -1:
+            image = QImage()
+            try:
+                image.load(fileName[0], "png")
+            except:
+                self.exceptSignal.emit("Error occurred during file load - " + fileName[0])
         else:
             self.exceptSignal.emit("File format is not supported - " + fileName[0])
             return
