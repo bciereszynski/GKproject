@@ -1,4 +1,6 @@
 from PyQt5.QtGui import QImage, qRed, qRgb
+from PyQt5.QtWidgets import QPlainTextEdit
+
 from ImageOperations.ImageEditor import ImageEditor
 
 # https://homepages.inf.ed.ac.uk/rbf/HIPR2/morops.htm
@@ -16,6 +18,40 @@ class MorphologyEditor(ImageEditor):
 
         self.createControlButton("Thinning", self.Thinning)
         self.createControlButton("Thickening", self.Thickening)
+
+        self.shapeEdit = QPlainTextEdit()
+        self.shapeEdit.setFixedSize(61, 100)
+        self.shapeEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        text = "1 1 1\n1 1 1\n1 1 1"
+        self.shapeEdit.setPlainText(text)
+        self.controlsLay.addWidget(self.shapeEdit)
+
+    def mouseMoveEvent(self, e):
+        super()
+        p = self.shapeEdit.mapFromParent(e.pos())
+        if p.x() > 60:
+            self.shapeEdit.setFixedWidth(p.x())
+        if p.y() > 100:
+            self.shapeEdit.setFixedHeight(p.y())
+
+    def __parseShape(self):
+        lines = self.shapeEdit.toPlainText().splitlines()
+        shape = []
+        shape_size = len(lines)
+        if shape_size % 2 != 1:
+            raise Exception("shape size must be odd")
+        for line in lines:
+            shape_line = []
+            for item in line.split():
+                try:
+                    int(item)
+                except ValueError:
+                    raise Exception("Not numeric item occurred")
+                shape_line.append(int(item))
+            if shape_size != len(shape_line):
+                raise Exception("shape not fully filled")
+            shape.append(shape_line)
+        return shape
 
     def Opening(self):
         self.Erosion()
@@ -38,11 +74,14 @@ class MorphologyEditor(ImageEditor):
             self.apply(255,"FIT")
 
     def Thickening(self):
-        self.apply(0, "FIT")
+        test = None
+        while test != self.currentImage:
+            test = self.currentImage
+            self.apply(0, "FIT")
+
 
     def apply(self, value, condition):
-        shape: list[list] = [[1, 1, 0], [1, 0, 0], [1, 0, 0]]
-        #shape: list[list] = [[0, 1, 0], [1, 1, 1], [0, 1, 0]]
+        shape = self.__parseShape()
         image = QImage(self.currentImage)
         shape_size = len(shape)
         reach = shape_size // 2
