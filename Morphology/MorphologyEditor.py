@@ -26,6 +26,8 @@ class MorphologyEditor(ImageEditor):
         self.shapeEdit.setPlainText(text)
         self.controlsLay.addWidget(self.shapeEdit)
 
+        self.createControlButton("Rotate", self.rotateShape)
+
     def mouseMoveEvent(self, e):
         super()
         p = self.shapeEdit.mapFromParent(e.pos())
@@ -33,6 +35,18 @@ class MorphologyEditor(ImageEditor):
             self.shapeEdit.setFixedWidth(p.x())
         if p.y() > 100:
             self.shapeEdit.setFixedHeight(p.y())
+
+    def rotateShape(self):
+        shape = self.__parseShape()
+        shape = self.rotateArray(shape)
+        text = ""
+        for line in shape:
+            for number in line:
+                text += str(number) + " "
+            text = text[:-1]
+            text += '\n'
+        text = text[:-1]
+        self.shapeEdit.setPlainText(text)
 
     def __parseShape(self):
         lines = self.shapeEdit.toPlainText().splitlines()
@@ -119,3 +133,8 @@ class MorphologyEditor(ImageEditor):
             return "MISS"
         else:
             return "HIT"
+
+    @staticmethod
+    def rotateArray(array):
+        list_of_tuples = zip(*array[::-1])
+        return list([list(elem) for elem in list_of_tuples])
