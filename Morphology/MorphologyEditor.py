@@ -88,29 +88,52 @@ class MorphologyEditor(ImageEditor):
             self.apply(255,"FIT")
 
     def Thickening(self):
-        test = None
+        test = self.currentImage
+        pixels = self.apply(0, "FIT")
+        shape = self.__parseShape()
         while test != self.currentImage:
             test = self.currentImage
-            self.apply(0, "FIT")
+            pixels = self.__thick(shape, pixels)
 
+    def __thick(self, shape, changedPixels):
+        image = QImage(self.currentImage)
+        value = 0
+        condition = "FIT"
+        shape_size = len(shape)
+        reach = shape_size // 2
+        pixels = []
+
+        for a, b in changedPixels:
+            for x in range(a - reach, a + reach + 1):
+                for y in range(b - reach, b + reach + 1):
+                    if image.pixelColor(x, y).red() == value:
+                        continue
+                    result = self.hit_or_miss(x, y, shape)
+                    if result == condition:
+                        image.setPixel(x, y, qRgb(value, value, value))
+                        pixels.append((x, y))
+
+        self.updateImage(image)
+        return pixels
 
     def apply(self, value, condition):
         shape = self.__parseShape()
         image = QImage(self.currentImage)
         shape_size = len(shape)
         reach = shape_size // 2
+        pixels = []
 
         for x in range(reach, image.width() - reach):
             for y in range(reach, image.height() - reach):
+                if image.pixelColor(x, y).red() == value:
+                    continue
                 result = self.hit_or_miss(x, y, shape)
-
                 if result == condition:
                     image.setPixel(x, y, qRgb(value, value, value))
-
+                    pixels.append((x, y))
 
         self.updateImage(image)
-
-
+        return pixels
 
     def hit_or_miss(self, x, y, shape):
         shape_size = len(shape)
