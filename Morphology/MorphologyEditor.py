@@ -82,10 +82,12 @@ class MorphologyEditor(ImageEditor):
         self.apply(0, "HIT")
 
     def Thinning(self):
-        test = None
+        test = self.currentImage
+        pixels = self.apply(255, "FIT")
+        shape = self.__parseShape()
         while test != self.currentImage:
             test = self.currentImage
-            self.apply(255,"FIT")
+            pixels = self.__applyOnlyChanged(255, "FIT", shape, pixels)
 
     def Thickening(self):
         test = self.currentImage
@@ -93,12 +95,10 @@ class MorphologyEditor(ImageEditor):
         shape = self.__parseShape()
         while test != self.currentImage:
             test = self.currentImage
-            pixels = self.__thick(shape, pixels)
+            pixels = self.__applyOnlyChanged(0, "FIT", shape, pixels)
 
-    def __thick(self, shape, changedPixels):
+    def __applyOnlyChanged(self, value, condition, shape, changedPixels):
         image = QImage(self.currentImage)
-        value = 0
-        condition = "FIT"
         shape_size = len(shape)
         reach = shape_size // 2
         pixels = []
