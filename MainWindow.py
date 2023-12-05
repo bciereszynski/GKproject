@@ -8,6 +8,7 @@ from HistogramAndBinarization.HistogramAndBinarizationTab import HistogramAndBin
 from ImageOperations.ImagesOperationsTab import ImagesOperationsTab
 from Morphology.MorphologyTab import MorphologyTab
 from Primitives.PrimitivesTab import PrimitivesTab
+from Transformations2D.PolygonTab import PolygonTab
 
 
 class MainWindow(QWidget):
@@ -26,6 +27,7 @@ class MainWindow(QWidget):
         self.imagesOperationsTab = ImagesOperationsTab()
         self.histogramAndBinarizationTab = HistogramAndBinarizationTab()
         self.curveTab = CurveTab()
+        self.polygonTab = PolygonTab()
         self.morphologyTab = MorphologyTab()
         self.tabs.resize(300, 200)
 
@@ -36,6 +38,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.imagesOperationsTab, "4. Images operations")
         self.tabs.addTab(self.histogramAndBinarizationTab, "5. Histogram and binarization")
         self.tabs.addTab(self.curveTab, "6. Beizer curves")
+        self.tabs.addTab(self.polygonTab, "7. Polygons")
         self.tabs.addTab(self.morphologyTab, "8. Morphology")
 
         self.layout.addWidget(self.tabs)
