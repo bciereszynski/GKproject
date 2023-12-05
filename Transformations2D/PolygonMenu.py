@@ -36,12 +36,16 @@ class PolygonMenu(Menu):
 
         self.translationBtn = self.createButton("Translation mode", self.setTranslation)
         self.rotateBtn = self.createButton("Rotation mode", self.setRotation)
+        self.rotateBtn = self.createButton("Scale mode", self.setScale)
 
     def setTranslation(self):
         self.drawBox.mode = "trans"
 
     def setRotation(self):
         self.drawBox.mode = "rotate"
+
+    def setScale(self):
+        self.drawBox.mode = "scale"
 
     def updateSelectedPoint(self):
         point = self.drawBox.selectedObject

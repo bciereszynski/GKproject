@@ -64,6 +64,20 @@ class Vertex:
         except:
             pass
 
+    def scale(self, x, y, factorX, factorY):
+        pointMatrix = np.array([self.x - x, self.y - y, 1]).reshape(3, 1)
+        translationMatrix = np.array([factorX, 0, 0, 0, factorY, 0, 0, 0, 1]).reshape(3, 3)
+
+        result = np.matmul(translationMatrix, pointMatrix)
+        try:
+            self.x = x + int(result[0, 0])
+        except:
+            pass
+        try:
+            self.y = y + int(result[1, 0])
+        except:
+            pass
+
     def resize(self, delta):
         self.move(delta)
 

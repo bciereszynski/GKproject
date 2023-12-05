@@ -86,9 +86,19 @@ class PolygonDrawBox(DrawBox):
             angle = self.__calculateAngle(self.__initial_pos, self.calcPoint, event.pos())
             self.selectedObject.rotate(self.calcPoint.x, self.calcPoint.y, angle)
 
+        if self.mode == "scale":
+            factorX, factorY = self.__calculateFactors(self.__initial_pos, event.pos(), self.calcPoint)
+            self.selectedObject.scale(self.calcPoint.x, self.calcPoint.y, factorX, factorY)
+
         self.selectObject(self.selectedObject, False)
         self.__initial_pos = None
         self.update()
+
+    @staticmethod
+    def __calculateFactors(startPoint, destPoint, calcPoint):
+        factorX = abs(destPoint.x() - calcPoint.x) / abs(startPoint.x() - calcPoint.x)
+        factorY = abs(destPoint.y() - calcPoint.y) / abs(startPoint.y() - calcPoint.y)
+        return factorX, factorY
 
     @staticmethod
     def __calculateAngle(pointA, pointB, pointC):

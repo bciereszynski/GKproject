@@ -26,6 +26,10 @@ class Polygon:
         for p in self.points:
             p.rotate(x, y, angle)
 
+    def scale(self, x, y, factorX, factorY):
+        for p in self.points:
+            p.scale(x, y, factorX, factorY)
+
     def setSelected(self, isSelected):
         self.selected = isSelected
 
