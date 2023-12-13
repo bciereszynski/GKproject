@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QTabWidget, QWidget, QLabel
 from BézierCurve.CurveTab import CurveTab
 from Colors.ColorTab import ColorTab
 from Files.FilesTab import FilesTab
+from Greens.GreenTab import GreenTab
 from HistogramAndBinarization.HistogramAndBinarizationTab import HistogramAndBinarizationTab
 from ImageOperations.ImagesOperationsTab import ImagesOperationsTab
 from Morphology.MorphologyTab import MorphologyTab
@@ -29,6 +30,7 @@ class MainWindow(QWidget):
         self.curveTab = CurveTab()
         self.polygonTab = PolygonTab()
         self.morphologyTab = MorphologyTab()
+        self.greenTab = GreenTab()
         self.tabs.resize(300, 200)
 
         # Add tabs
@@ -40,6 +42,7 @@ class MainWindow(QWidget):
         self.tabs.addTab(self.curveTab, "6. Beizer curves")
         self.tabs.addTab(self.polygonTab, "7. Polygons")
         self.tabs.addTab(self.morphologyTab, "8. Morphology")
+        self.tabs.addTab(self.greenTab, "9. Green")
 
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
